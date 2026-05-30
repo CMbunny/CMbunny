@@ -1,6 +1,8 @@
 # 💫 About Me:
 🔭 I’m currently working on  <br>AI agents and exploring their real-world applications  <br><br>👯 I’m looking to collaborate on  <br>AI-based projects and innovative IoT ideas  <br><br>🤝 I’m looking for help with  <br>APIs — I have a basic to intermediate understanding and want to improve  <br><br>🌱 I’m currently learning  <br>APIs, Modbus protocol, OTA updates, MQTT, and IoT systems  <br><br>💬 Ask me about  <br>AI basics, IoT projects, learning resources, and getting started with tech  <br><br>⚡ Fun fact  <br>I’m a beginner, but a fast learner and always curious to explore new tech 🚀
 
+## 🤖 AI Agents
+Check out my AI agents collection: [AI-agents](https://github.com/CMbunny/AI-agents)
 
 ## 🌐 Socials:
 [![Instagram](https://img.shields.io/badge/Instagram-%23E4405F.svg?logo=Instagram&logoColor=white)](https://instagram.com/ranjan_bansal) [![LinkedIn](https://img.shields.io/badge/LinkedIn-%230077B5.svg?logo=linkedin&logoColor=white)](https://linkedin.com/in/Ranjan Bansal) [![email](https://img.shields.io/badge/Email-D14836?logo=gmail&logoColor=white)](mailto:ranjanbansal8@gmail.com) 
