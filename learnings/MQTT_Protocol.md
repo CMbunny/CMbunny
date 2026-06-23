@@ -1,7 +1,7 @@
-**What is MQTT?**
+# What is MQTT? 
 MQTT (Message Queuing Telemetry Transport) is a lightweight messaging protocol designed for the "Internet of Things" (IoT). Unlike Modbus, which is a request-response protocol (Master asks, Slave answers), MQTT is a publish/subscribe protocol. It was built to be extremely efficient, working well over unreliable, low-bandwidth, or high-latency networks.
 
-**How MQTT Works: The "Broker" Model**
+## How MQTT Works: The "Broker" Model
 MQTT operates differently than traditional client-server models. Everything revolves around a central hub called the MQTT Broker.
 
 ***Publishers:*** Any device that wants to send data. It sends messages to the Broker under a specific "Topic" (e.g., sensors/living_room/temperature).
@@ -10,7 +10,7 @@ MQTT operates differently than traditional client-server models. Everything revo
 
 ***The Broker:*** The "post office" of the system. It receives messages from publishers and instantly pushes them to anyone currently subscribed to that topic.
 
-**What it Takes to Use MQTT**
+## What it Takes to Use MQTT
 To build an MQTT-based system, you need three main components:
 
 **An MQTT Broker:** This is software that manages the traffic.
@@ -20,7 +20,7 @@ Examples: Mosquitto (open-source), EMQX, or managed cloud services like AWS IoT 
 
 **Network Connection:** An IP-based network (Wi-Fi, Ethernet, Cellular) for the devices to reach the Broker.
 
-**Why Use MQTT? (Key Advantages)**
+## Why Use MQTT? (Key Advantages)
 ***Low Bandwidth:*** The header size is tiny (as small as 2 bytes), making it perfect for small messages transmitted over cellular or unstable connections.
 ***Decoupling:*** The publisher doesn't need to know who the subscriber is. A sensor just says "The temperature is 25°C," and the broker handles sending that info to whoever needs it.
 ***"Last Will and Testament":*** If a device suddenly loses power or connection, the Broker can automatically send a "Will" message to other devices to notify them that the device is offline.
@@ -52,10 +52,11 @@ The Three Levels of QOS(Detailed Breakdown):
 ***Best For:*** Mission-critical scenarios where duplicates could cause damage or errors (e.g., a bank transaction or a command to trigger a fire extinguisher).  
 
 
-NOTES:
+## NOTES:
 MQTT is the "language" of modern remote monitoring. If you have a sensor in a remote location and want to view the data on your smartphone or a dashboard in a different city, you use MQTT.
 The sensor "publishes" to the cloud broker, and your app "subscribes" to the broker to see the live data.
 It is highly scalable—you can have one sensor or millions of sensors reporting to a single cluster of brokers.
 
-**The "Rule of the Lowest":** The final delivery level is determined by the lowest common denominator between the publisher and the subscriber.
+## The "Rule of the Lowest":
+The final delivery level is determined by the lowest common denominator between the publisher and the subscriber.
 If a publisher sends at QoS 2, but the subscriber only requests QoS 0, the message will be delivered to that subscriber at QoS 0.
