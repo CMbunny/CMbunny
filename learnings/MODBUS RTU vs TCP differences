@@ -17,12 +17,13 @@ Modbus TCP is essentially Modbus RTU "wrapped" inside a standard TCP/IP packet. 
 ***Infrastructure***: It takes advantage of existing IT infrastructure, such as switches, routers, and fiber optics, making it ideal for long-distance, high-speed, and complex network architectures.
 
 
-**Feature**,**Modbus RTU**,**Modbus TCP**
-**Medium**,Serial (RS-485/232),Ethernet (Network cables)
-**Error Handling**,CRC (Application level),Multi-layer (TCP/IP/Ethernet)
-**Reliability**,"""Best Effort"" (ignores bad data)","""Guaranteed"" (automatic re-send)"
-**Addressing**,Slave ID,IP Address
-**Speed**,Slow (serial limitations),Fast (network bandwidth)
+Feature            |	Modbus RTU	                      |Modbus TCP
+Medium	           |  Serial (RS-485/232)	              |Ethernet (Network cables)
+Error Handling      |	CRC (Application level)           |	Multi-layer (TCP/IP/Ethernet)
+Reliability	      |"Best Effort" (ignores bad data)	    |"Guaranteed" (automatic re-send)
+Addressing        |	Slave ID	                          |IP Address
+Speed	          |Slow (serial limitations)              |	Fast (network bandwidth)
+
 
 Question:
 "TCP/IP checksum + IP layer error correction: give more explanation on this."
@@ -39,3 +40,8 @@ Question:
 Which one should you use?
 Answer: 1.Choose Modbus RTU if you are working with short-range, low-cost field devices, have limited bandwidth, or are retrofitting older systems where serial infrastructure is already installed.
 2.Choose Modbus TCP if you need high speed, long distances, integration with IT/Cloud systems, or if you need multiple controllers to access data from the same device simultaneously.
+
+NOTES:
+Why is it better?
+In the RTU world, if there is a tiny bit of "noise" (interference) on the wire, your data is corrupted, and you have to manually code your software to ask for a retry. 
+In the TCP world, you don't even have to think about it. The network hardware and the computer's operating system handle all the error-checking, fixing, and re-sending in the background. Your software only ever sees the "perfect" final data.
