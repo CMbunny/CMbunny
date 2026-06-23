@@ -17,12 +17,12 @@ Modbus TCP is essentially Modbus RTU "wrapped" inside a standard TCP/IP packet. 
 ***Infrastructure***: It takes advantage of existing IT infrastructure, such as switches, routers, and fiber optics, making it ideal for long-distance, high-speed, and complex network architectures.
 
 
-Feature            |	Modbus RTU	                      |Modbus TCP
-Medium	           |  Serial (RS-485/232)	              |Ethernet (Network cables)
-Error Handling      |	CRC (Application level)           |	Multi-layer (TCP/IP/Ethernet)
-Reliability	      |"Best Effort" (ignores bad data)	    |"Guaranteed" (automatic re-send)
-Addressing        |	Slave ID	                          |IP Address
-Speed	          |Slow (serial limitations)              |	Fast (network bandwidth)
+**Feature**            |	**Modbus RTU**	                      |**Modbus TCP**
+**Medium**	           |  Serial (RS-485/232)	              |Ethernet (Network cables)
+**Error Handling**      |	CRC (Application level)           |	Multi-layer (TCP/IP/Ethernet)
+**Reliability**	      |"Best Effort" (ignores bad data)	    |"Guaranteed" (automatic re-send)
+**Addressing**        |	Slave ID	                          |IP Address
+**Speed**	          |Slow (serial limitations)              |	Fast (network bandwidth)
 
 
 Question:
