@@ -31,18 +31,18 @@ Modbus TCP is essentially Modbus RTU "wrapped" inside a standard TCP/IP packet. 
 "TCP/IP checksum + IP layer error correction: give more explanation on this."
 
 ## The Answer:
-Think of the difference like sending a package:
--1.Modbus RTU (The Postcard): You write a message and stick a stamp on it (the CRC). If the postcard gets wet or ripped in the mail, it’s ruined. The post office doesn't care; it just delivers the scrap of paper to the recipient, who then realizes it’s unreadable and throws it away.
--2.Modbus TCP (The Certified Courier): You hand the package to a professional service.
-i)The Ethernet layer checks the physical "box" to ensure it wasn't crushed during transport.
-ii)The IP layer checks the address label to make sure the package is going to the right house.
+Think of the difference like sending a package:<br>
+1.Modbus RTU (The Postcard): You write a message and stick a stamp on it (the CRC). If the postcard gets wet or ripped in the mail, it’s ruined. The post office doesn't care; it just delivers the scrap of paper to the recipient, who then realizes it’s unreadable and throws it away.<br>
+2.Modbus TCP (The Certified Courier): You hand the package to a professional service.<br>
+i)The Ethernet layer checks the physical "box" to ensure it wasn't crushed during transport.<br>
+ii)The IP layer checks the address label to make sure the package is going to the right house.<br>
 iii)The TCP layer is the "courier." It keeps a checklist. If any part of your package is missing or damaged, the courier automatically goes back to the sender and says, "This didn't arrive correctly, please send it again."
 
 ## Question:
 Which one should you use?
-## Answer:
--1.Choose Modbus RTU if you are working with short-range, low-cost field devices, have limited bandwidth, or are retrofitting older systems where serial infrastructure is already installed.
--2.Choose Modbus TCP if you need high speed, long distances, integration with IT/Cloud systems, or if you need multiple controllers to access data from the same device simultaneously.
+## Answer:<br>
+1.Choose Modbus RTU if you are working with short-range, low-cost field devices, have limited bandwidth, or are retrofitting older systems where serial infrastructure is already installed.<br>
+2.Choose Modbus TCP if you need high speed, long distances, integration with IT/Cloud systems, or if you need multiple controllers to access data from the same device simultaneously.
 
 ## NOTES:
 **Why is it better?**
