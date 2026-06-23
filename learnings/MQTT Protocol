@@ -50,3 +50,12 @@ The Three Levels of QOS(Detailed Breakdown):
 ***The Logic:*** This uses a complex four-step "handshake" process to ensure the message is delivered, acknowledged, and finalized without any duplicates. 
 ***Performance:*** It is the slowest and has the most "chatter" (network traffic) because of the multiple back-and-forth messages required.
 ***Best For:*** Mission-critical scenarios where duplicates could cause damage or errors (e.g., a bank transaction or a command to trigger a fire extinguisher).  
+
+
+NOTES:
+MQTT is the "language" of modern remote monitoring. If you have a sensor in a remote location and want to view the data on your smartphone or a dashboard in a different city, you use MQTT.
+The sensor "publishes" to the cloud broker, and your app "subscribes" to the broker to see the live data.
+It is highly scalable—you can have one sensor or millions of sensors reporting to a single cluster of brokers.
+
+**The "Rule of the Lowest":** The final delivery level is determined by the lowest common denominator between the publisher and the subscriber.
+If a publisher sends at QoS 2, but the subscriber only requests QoS 0, the message will be delivered to that subscriber at QoS 0.
