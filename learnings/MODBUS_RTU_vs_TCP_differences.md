@@ -46,5 +46,5 @@ Which one should you use?
 
 ## NOTES:
 **Why is it better?**
-In the RTU world, if there is a tiny bit of "noise" (interference) on the wire, your data is corrupted, and you have to manually code your software to ask for a retry. 
+In the RTU world, if there is a tiny bit of "noise" (interference) on the wire, your data is corrupted, and you have to manually code your software to ask for a retry. <br>
 In the TCP world, you don't even have to think about it. The network hardware and the computer's operating system handle all the error-checking, fixing, and re-sending in the background. Your software only ever sees the "perfect" final data.
