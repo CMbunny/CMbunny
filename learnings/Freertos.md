@@ -50,9 +50,19 @@ In FreeRTOS, priorities are numerical values assigned to tasks when they are cre
 Internally, FreeRTOS keeps track of tasks using Ready Lists. Imagine these as a set of buckets, where each bucket is labeled with a priority number.<br>
 
 - When you call xTaskCreate(), you assign a priority.<br>
-
 - FreeRTOS places that task into the corresponding "bucket" (a linked list).<br>
-
 - ***The Decision:*** Every time a system tick occurs (or a function like vTaskDelay() is called), the scheduler looks at the buckets starting from the highest priority number downward.<br>
-
 - It picks the first task it finds in the highest-numbered bucket that has tasks in it and gives it the CPU.<br>
+
+**3. The ESP32 "Twist": Dual-Core**<br>
+The ESP32 has two cores: Core 0 (Protocol CPU) and Core 1 (Application CPU).<br>
+
+- When you create a task, you can use the function xTaskCreatePinnedToCore() to tell the scheduler exactly which core that task should live on.<br>
+- If you don't specify, FreeRTOS will assign it to a core for you.<br>
+- ***Independent Scheduling:*** Each core has its own independent scheduler and its own "Ready Lists." A high-priority task on Core 0 has absolutely no impact on what is running on Core 1.<br>
+
+**4. What happens when priorities are equal?**<br>
+If two tasks have the same priority, the scheduler uses Round-Robin Scheduling.<br>
+- It will run the first task for a specific amount of time (one "tick").<br>
+- When the next tick occurs, it moves that task to the back of the list and starts the second task.<br>
+- This ensures that no task of the same priority gets "starved" of CPU time.
