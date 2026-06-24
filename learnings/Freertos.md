@@ -65,4 +65,10 @@ The ESP32 has two cores: Core 0 (Protocol CPU) and Core 1 (Application CPU).<br>
 If two tasks have the same priority, the scheduler uses Round-Robin Scheduling.<br>
 - It will run the first task for a specific amount of time (one "tick").<br>
 - When the next tick occurs, it moves that task to the back of the list and starts the second task.<br>
-- This ensures that no task of the same priority gets "starved" of CPU time.
+- This ensures that no task of the same priority gets "starved" of CPU time. <br>
+
+**NOTES:** <br>
+- ***Avoid Priority Inversion:*** If a low-priority task holds a resource (like a Mutex) that a high-priority task needs, the high-priority task will be stuck. FreeRTOS has "Priority Inheritance" to help fix this, but it is something to watch for.<br>
+- ***Don't Over-Prioritize:*** A common mistake is making every task "High Priority." If everything is high priority, the scheduler has to work much harder to rotate them, which can lead to system instability. Reserve high priority only for time-critical tasks (like motor control or emergency stops).<br>
+
+
