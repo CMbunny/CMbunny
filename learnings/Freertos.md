@@ -111,3 +111,37 @@ When you call a blocking function like vTaskDelay(100):<br>
 - **The Switch:** The scheduler looks at its "Ready List," picks the next highest-priority task, and starts running that instead.<br>
 - **The Wake-Up:** On every "Tick" (the heartbeat of the OS), the kernel checks the "Delayed List." Once the counter reaches 100, the kernel moves that task back to the "Ready List."<br>
 - **Re-scheduling:** At the next available opportunity, the scheduler sees that the task is "Ready" again and puts it back on the CPU.
+
+
+## Freertos on ESP32 v/s STM32
+Switching from ESP32 to STM32 is a shift from a connectivity-first environment to a control-first environment. While the fundamental concepts of FreeRTOS (Tasks, Scheduler, Queues, Semaphores) remain identical, how you set it up and what you do with it changes significantly.<br>
+
+**The Fundamental Difference**<br>
+**1.) On ESP32:** FreeRTOS is "baked in." The ESP-IDF (the software framework) is built on top of FreeRTOS. Much of the system’s background work—Wi-Fi, Bluetooth, and internal housekeeping—is handled by FreeRTOS tasks that are already running before your code even starts.<br>
+**2.) On STM32:** FreeRTOS is an "add-on." It is a library you choose to include. You have complete control over the system's "heartbeat." If you don't add FreeRTOS, your STM32 simply runs as a bare-metal program.<br>
+
+## Key Technical Shifts
+|Feature|ESP32|STM32|
+|System Heart|FreeRTOS is mandatory for Wi-Fi/BT stacks.|You choose to use it or not.|
+|Cores|Dual-core (Dual schedulers).|Usually Single-core (unless H7/etc).|
+|Configuration|Configured via code/headers/menus.|Often configured via STM32CubeMX GUI.|
+|Interrupts|Wireless stacks can cause "jitter.|"Highly deterministic (precise timing).|
+|Abstraction|Managed by ESP-IDF.|You manage via HAL or Low-Level (LL) drivers.|
+
+## How the Workflow Changes<br>
+**1. Configuration (The "GUI" Factor)** <br>
+On STM32, you will likely use STM32CubeMX. It provides a visual interface where you click to enable FreeRTOS, set your stack sizes, and configure your timers. It generates the boilerplate code for you. On ESP32, you typically work within the ESP-IDF framework, where configuration is handled through a text-based menu system (menuconfig).<br>
+
+**2. Resource Management** 
+- ***ESP32:*** You have to be mindful that the Wi-Fi/Bluetooth background tasks are stealing CPU cycles. You often "pin" your critical tasks to Core 1 so they don't get interrupted by wireless data packets.
+- ***STM32:*** You have "quiet" hardware. Because there is no background wireless stack running unless you add it yourself, your tasks run with extreme consistency. This makes STM32 the superior choice for high-precision motor control or sensitive sensor sampling.<br>
+
+**3. Complexity vs. Control** <br>
+- **ESP32 is a "Black Box":** It abstracts away the hardware complexity. It's fantastic for speed, but you have less visibility into the low-level registers.
+- **STM32 is a "Glass Box":** It gives you total access to the hardware. You can see exactly how the timer triggers the ADC, how the DMA moves the data, and how the RTOS tick interferes (or doesn't). It requires more knowledge but rewards you with absolute reliability.
+
+## Notes: 
+- ***Logic:*** The FreeRTOS code you write (creating tasks, using queues) is portable; you can copy-paste most logic between the two.
+- ***Environment:*** The setup is different. STM32 is more manual and precise; ESP32 is more automated and connected.
+- ***Why use STM32?*** If your project needs to control something physically (a robot arm, a laser, an industrial motor) where timing must be perfect, STM32 is the industry standard.
+- ***Why use ESP32?*** If your project needs to talk to the internet or an app, ESP32 handles the heavy lifting of the network stack so you don't have to.
