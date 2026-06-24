@@ -71,4 +71,43 @@ If two tasks have the same priority, the scheduler uses Round-Robin Scheduling.<
 - ***Avoid Priority Inversion:*** If a low-priority task holds a resource (like a Mutex) that a high-priority task needs, the high-priority task will be stuck. FreeRTOS has "Priority Inheritance" to help fix this, but it is something to watch for.<br>
 - ***Don't Over-Prioritize:*** A common mistake is making every task "High Priority." If everything is high priority, the scheduler has to work much harder to rotate them, which can lead to system instability. Reserve high priority only for time-critical tasks (like motor control or emergency stops).<br>
 
+**Question:** <br>
+What is blocking? How Blocking works?<br>
 
+**Answer:**<br>
+In FreeRTOS, "Blocking" is the mechanism that prevents a task from wasting CPU power while it waits for something to happen.<br>
+Instead of the task staying in a "Ready" state and constantly asking the CPU "Are you done yet?" (which is called busy-waiting and ruins performance), the task tells the scheduler: "Put me to sleep, and don't wake me up until X happens."<br>
+
+**How Blocking Works: The State Machine**<br>
+When a task enters a "Blocked" state, the scheduler removes it from the "Ready List" we discussed earlier. It is effectively invisible to the scheduler until the condition it is waiting for is met.<br>
+
+**The "Wake-up" Triggers**<br>
+A task can be unblocked by several events:<br>
+
+- ***Time Delay (vTaskDelay):*** You tell the task to sleep for a specific number of milliseconds. The scheduler keeps a timer and automatically moves the task back to "Ready" once the time expires.<br>
+- ***Semaphore or Mutex:*** You want to wait for a shared resource to be free. The task blocks until another task "gives" the semaphore.<br>
+- ***Queue:*** You are waiting for data to arrive from a sensor or another task. The task blocks until a message is placed in the queue.<br>
+- ***Event Group:*** The task waits for a combination of "flags" (bits) to be set, indicating that specific conditions have been met.<br>
+
+**Why Blocking is Crucial?** <br>
+If you don't block your tasks, your ESP32 will run at 100% CPU usage constantly. This causes two major problems:<br>
+
+- ***Overheating:*** Running the CPU at maximum load consumes more power and generates heat.<br>
+- ***Starvation:*** If one "busy-waiting" task has a high priority, it might never let the lower-priority tasks (like the ones responsible for your Wi-Fi or Bluetooth stacks) run, causing your device to crash or disconnect.<br>
+
+**Comparison: Busy-Waiting vs. Blocking**
+|Feature|Busy-Waiting (Bad Practice)|Blocking (Best Practice)|
+|--|--|--|
+|CPU Usage| 100% (The CPU is spinning in circles)|0% (The task is asleep)|
+|Efficiency|Terrible (Waste of battery/power)|Excellent|
+|Response|Instant (but hurts everything else)|Immediate upon event (via interrupt)|
+|Code |Stylewhile(sensor_not_ready);|xSemaphoreTake(xSemaphore, portMAX_DELAY);|
+
+**The "Internal" View:** ***How the Scheduler handles this***<br>
+When you call a blocking function like vTaskDelay(100):<br>
+
+- **The Context Save:** The scheduler saves the current task's registers.<br>
+- **State Change:** The scheduler changes the task status from Running to Blocked and moves it to a "Delayed List" inside the kernel.<br>
+- **The Switch:** The scheduler looks at its "Ready List," picks the next highest-priority task, and starts running that instead.<br>
+- **The Wake-Up:** On every "Tick" (the heartbeat of the OS), the kernel checks the "Delayed List." Once the counter reaches 100, the kernel moves that task back to the "Ready List."<br>
+- **Re-scheduling:** At the next available opportunity, the scheduler sees that the task is "Ready" again and puts it back on the CPU.
