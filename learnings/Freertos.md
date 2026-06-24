@@ -34,7 +34,7 @@ FreeRTOS is not "called" like a regular library function; it is initialized and 
 ***The Takeover:*** Once the scheduler starts, the main() function essentially ends. The scheduler now handles all execution flow.<br>
 ***The Tick:** A hardware timer (the "System Tick") fires at a set interval (e.g., every 1ms). Every time this tick fires, the scheduler wakes up to check if it needs to switch tasks.
 
-**Question:** <br> how a freertos assign or prioritise work when it is called by an esp32 chip like what and how it decides which task is of greater priority ?<br>
+**Question:** <br> How a freertos assign or prioritise work when it is called by an esp32 chip like what and how it decides which task is of greater priority ?<br>
 **Answer:** <br>
 When you run FreeRTOS on an ESP32, you are essentially moving from a single-track program to a multi-threaded one. The ESP32 (which is dual-core) runs an instance of the FreeRTOS scheduler on both cores.<br>
 
@@ -122,11 +122,12 @@ Switching from ESP32 to STM32 is a shift from a connectivity-first environment t
 
 ## Key Technical Shifts
 |Feature|ESP32|STM32|
-|System Heart|FreeRTOS is mandatory for Wi-Fi/BT stacks.|You choose to use it or not.|
-|Cores|Dual-core (Dual schedulers).|Usually Single-core (unless H7/etc).|
-|Configuration|Configured via code/headers/menus.|Often configured via STM32CubeMX GUI.|
-|Interrupts|Wireless stacks can cause "jitter.|"Highly deterministic (precise timing).|
-|Abstraction|Managed by ESP-IDF.|You manage via HAL or Low-Level (LL) drivers.|
+|--|--|--|
+|**System Heart**|FreeRTOS is mandatory for Wi-Fi/BT stacks.|You choose to use it or not.|
+|**Cores**|Dual-core (Dual schedulers).|Usually Single-core (unless H7/etc).|
+|**Configuration**|Configured via code/headers/menus.|Often configured via STM32CubeMX GUI.|
+|**Interrupts**|Wireless stacks can cause "jitter.|"Highly deterministic (precise timing).|
+|**Abstraction**|Managed by ESP-IDF.|You manage via HAL or Low-Level (LL) drivers.|
 
 ## How the Workflow Changes<br>
 **1. Configuration (The "GUI" Factor)** <br>
