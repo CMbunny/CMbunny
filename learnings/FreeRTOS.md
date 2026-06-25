@@ -146,3 +146,93 @@ On STM32, you will likely use STM32CubeMX. It provides a visual interface where 
 - ***Environment:*** The setup is different. STM32 is more manual and precise; ESP32 is more automated and connected.
 - ***Why use STM32?*** If your project needs to control something physically (a robot arm, a laser, an industrial motor) where timing must be perfect, STM32 is the industry standard.
 - ***Why use ESP32?*** If your project needs to talk to the internet or an app, ESP32 handles the heavy lifting of the network stack so you don't have to.
+
+## Mutex v/s Semaphore: 
+In FreeRTOS, both Mutexes and Semaphores are synchronization primitives used to manage shared resources and coordinate tasks, but they serve different architectural purposes. <br>
+
+**1. Mutex vs. Semaphore: The Difference**<br>
+|Feature|Mutex (Mutual Exclusion)|Semaphore (Counting)|
+|--|--|--|
+|**Primary Use**|Protecting shared resources (e.g., I2C bus, memory).|Signaling between tasks (e.g., "Data is ready").|
+|**Ownership**|Yes (The task that takes it MUST give it).|No (Any task can take or give).|
+|**Priority**|Includes Priority Inheritance.|Does not.|
+
+***NOTE:***
+- ***Mutex:*** Think of it as a "Key" to a room. Only one person can have the key. If a high-priority task needs the key, the low-priority task holding it will temporarily inherit the high priority to finish its work and release the key (this prevents Priority Inversion).<br>
+- ***Semaphore:*** Think of it as a "Counter." It tracks how many resources are available. It is purely for signaling.<br>
+
+**2. The Wrapper Pattern (Lock/Unlock)** <br>
+In C/C++, it is common practice to wrap Mutex operations in a small structure or class to prevent bugs (like forgetting to unlock).<br>
+
+***Conceptual "Lock/Unlock" Wrapper*** <br>
+```
+// Manual approach - Risky if you forget the unlock
+xSemaphoreTake(myMutex, portMAX_DELAY);
+      // Critical Section
+xSemaphoreGive(myMutex);
+
+// Safer Wrapper approach
+void safe_access_resource() {
+    if (xSemaphoreTake(myMutex, portMAX_DELAY) == pdTRUE) {
+              // Do your work here...
+        xSemaphoreGive(myMutex);
+    }
+}
+```
+**3. Real Code Example: Using FreeRTOS**<br>
+Here is how you structure a standard FreeRTOS application. This example shows two tasks competing for a shared resource (a serial printer) protected by a Mutex.<br>
+
+```#include "FreeRTOS.h"
+#include "task.h"
+#include "semphr.h"
+
+// 1. Declare the Mutex handle
+SemaphoreHandle_t xMutex;
+
+void vTaskFunction(void * pvParameters) {
+    char *taskName = (char *)pvParameters;
+    
+    while(1) {
+        // 2. Try to get the Mutex (The "Lock")
+        if (xSemaphoreTake(xMutex, portMAX_DELAY) == pdTRUE) {
+            // CRITICAL SECTION: Only one task can print at a time
+            printf("%s is using the printer\n", taskName);
+            vTaskDelay(pdMS_TO_TICKS(100)); 
+            
+            // 3. Give the Mutex back (The "Unlock")
+            xSemaphoreGive(xMutex);
+        }
+        
+        vTaskDelay(pdMS_TO_TICKS(500));
+    }
+}
+
+int main() {
+    // 4. Create the Mutex
+    xMutex = xSemaphoreCreateMutex();
+
+    if (xMutex != NULL) {
+        // 5. Create two tasks that use the same resource
+        xTaskCreate(vTaskFunction, "Task 1", 1000, "Task 1", 1, NULL);
+        xTaskCreate(vTaskFunction, "Task 2", 1000, "Task 2", 1, NULL);
+        
+        // 6. Start the scheduler
+        vTaskStartScheduler();
+    }
+    
+    while(1); // Should never reach here
+}
+```
+**4. Strategic Usage Guidelines** <br>
+- ***Use a Mutex when:*** You have a shared hardware resource like an SPI bus, I2C bus, or a shared global variable that two tasks write to. It ensures data consistency.<br>
+- ***Use a Semaphore (Binary) when:*** You are doing task signaling. For example, an ISR (Interrupt Service Routine) receives a network packet and needs to tell a high-priority "Processing Task" to wake up and handle it.<br>
+- ***Use a Semaphore (Counting) when:*** You have a pool of resources, like a buffer that can hold 5 messages. Tasks can take from the buffer until the counter hits zero.<br>
+
+**Notes** <br>
+1.)***Mutex = Protection:*** Keeps shared data safe.<br>
+
+2.)***Semaphore = Notification:*** Lets tasks talk to each other.<br>
+
+3.)***Wrapper Pattern:*** Always ensure your Give happens in the same scope as your Take to prevent deadlocks.<br>
+
+4.)***Priority Inheritance:*** Mutexes are smarter than semaphores in RTOS because they solve the problem of a low-priority task blocking a high-priority one.
