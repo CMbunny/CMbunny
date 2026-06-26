@@ -49,3 +49,20 @@ void save_user_data(hmi_user_t *user) {
     nvs_close(my_handle);
 }
 ```
+**3. Advanced Concepts**
+|Concept|Explanation|
+|--|--|
+|**Partition Sizing**|Defined in `partitions.csv`. If your app grows, you must increase the NVS size in this file, or you will get "NVS Full" errors constantly.|
+|**Atomic Operations**|`nvs_commit()` ensures that the write is complete. If power fails during the set but before commit, the old data remains safe.|
+|**Performance**|NVS is slow compared to RAM. Never call `nvs_set` or `nvs_commit` inside a high-frequency loop (like a motor control loop). Use it only for settings changes.| <br>
+
+**4. Critical Doubts** <br>
+**Question:** "Can I use NVS to log sensor data every second?" <br>
+**Answer:** No. You will burn through the flash memory's life expectancy in days. Use NVS for configuration that changes rarely. For logging data, use an SD card or a dedicated SPIFFS/LittleFS partition. <br>
+
+**Question:** "What if my struct changes? (e.g., I add a field to `hmi_user_t`)" <br>
+**Answer:** This is a "schema evolution" trap. If you change your struct size, `nvs_get_blob` will fail because the size doesn't match. <br>
+- ***The fix:*** Always add a `uint32_t version` field at the start of your structs. If the version in the blob is older, handle the migration in your code.<br>
+
+**Question:** "Is NVS thread-safe?"<br>
+**Answer**: The underlying NVS driver is thread-safe for reading/writing, but you should still wrap your application-level "Namespace access" in a Mutex if multiple tasks are trying to update the same namespace simultaneously to prevent race conditions.
