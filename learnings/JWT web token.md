@@ -54,3 +54,12 @@ Since JWTs are "stateless" (the server doesn't keep a list of them), the server 
 **Why the difference matters:** <br>
 1.)**Length Extension Attacks:** In your manual approach, if an attacker knows the secret length, they can potentially append data to your signature and calculate a valid hash without knowing the secret. HMAC prevents this by using a specific "inner" and "outer" hash structure (the XOR logic mentioned in the table), which completely obscures the original secret.<br>
 2.)**Compatibility:** If you ever want to move your HMI dashboard from your ESP32 to a web browser or a mobile app, those platforms will have built-in libraries for HMAC-SHA256. They will not have a library for your "Manual Concatenation" method, meaning you would have to write custom code for every single platform.<br>
+### NOTES
+- **Header:** `{"alg":"HS256","typ":"JWT"}` (Encoded)
+- **Payload:** `{"sub":"admin","exp":1719430000}` (Encoded)
+- **Signature:** `HMAC_SHA256(encoded_header + "." + encoded_payload, secret)`
+- **Integrity:** The signature ensures the data hasn't been changed.
+- **Security:** Never store secrets in the payload, and always use HMAC-SHA256 over custom concatenation.
+- **The Secret is Key:** In both cases, the Secret is the glue. Never share it.
+- **Don't Roll Your Own:** In cryptography, "rolling your own" (inventing your own method of signing data) is considered a dangerous practice. Always use the HMAC standard when you are ready to move to a production-grade system.
+- **The "Two-Step" Hash:** HMAC-SHA256 is basically the process of hashing the message, then hashing the secret, and combining them in a way that makes it impossible to "strip" the secret back out or extend the message.
