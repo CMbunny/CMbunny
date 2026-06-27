@@ -40,4 +40,17 @@ Since JWTs are "stateless" (the server doesn't keep a list of them), the server 
 **Answer:** No. If someone gets your firmware, they get your secret. In an ESP32, the best practice is to generate a unique random secret at first boot and store it in NVS (as you are already doing) so that each individual device has its own unique key.<br>
 **Question:** How do I "log out" a user if the token is valid until it expires?<br>
 **Answer:** You can't, at least not easily. Because JWTs are self-contained, the server doesn't "know" you've logged out.
-- ***The Professional Fix:*** Use a short-lived access token (e.g., 15 minutes) and a long-lived refresh token (stored securely in a database). When the access token expires, the client uses the refresh token to get a new one. To "log out," you simply delete the refresh token from your database
+- ***The Professional Fix:*** Use a short-lived access token (e.g., 15 minutes) and a long-lived refresh token (stored securely in a database). When the access token expires, the client uses the refresh token to get a new one. To "log out," you simply delete the refresh token from your database.
+
+### Comparison: Manual Hashing vs. HMAC-SHA256
+|Feature|Manual Concatenation|HMAC-SHA256 (Standard)|
+|--|--|--|
+|**Logic**|`Hash(Header + "." + Payload + "." + Secret)`|`Hash( (Secret XOR opad) + Hash( (Secret XOR ipad) + Message ) )`|
+|**Security**|Susceptible to "Length Extension Attacks"|Mathematically immune to most known hash attacks|
+|**Standardization**|Home-rolled/Proprietary|RFC 2104 compliant (Industry Standard)|
+|**Performance**|Slightly faster (fewer operations)|Slightly slower (due to double-hashing)|
+|**Complexity**|Easy to implement|Requires a standardized library|
+
+**Why the difference matters:** <br>
+1.)**Length Extension Attacks:** In your manual approach, if an attacker knows the secret length, they can potentially append data to your signature and calculate a valid hash without knowing the secret. HMAC prevents this by using a specific "inner" and "outer" hash structure (the XOR logic mentioned in the table), which completely obscures the original secret.<br>
+2.)**Compatibility:** If you ever want to move your HMI dashboard from your ESP32 to a web browser or a mobile app, those platforms will have built-in libraries for HMAC-SHA256. They will not have a library for your "Manual Concatenation" method, meaning you would have to write custom code for every single platform.<br>
