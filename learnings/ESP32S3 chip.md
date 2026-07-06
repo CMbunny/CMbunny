@@ -81,4 +81,50 @@ The ESP32-S3 features an IO_MUX and a GPIO Matrix. This is what gives you flexib
 This is how you protect your intellectual property in the Curator-H project.
 - ***Flash Encryption:*** The chip uses a hardware-based AES-256 engine. Your firmware is stored in the external flash in an encrypted state. The key is stored in the eFuse—a "write-once" memory on the chip that cannot be read back by any external tool.
 - ***Secure Boot:*** The chip verifies the digital signature of the firmware against a public key burned into the eFuse. If you try to flash "cracked" or modified code, the bootloader will detect the signature mismatch and refuse to execute.
-- ***Result:*** Even if someone desolders your Flash chip and reads the raw data, they will only see ciphertext.
+- ***Result:*** Even if someone desolders your Flash chip and reads the raw data, they will only see ciphertext. <br>
+
+**5.Wi-Fi Capabilities** 
+- **Inbuilt Wi-Fi:** Yes, the ESP32-S3 features an integrated 2.4 GHz Wi-Fi controller that supports the 802.11 b/g/n standard.
+- **Performance:** It supports data rates of up to 150 Mbps.
+- **Protocol Support:** It is designed to handle standard networking protocols, which is why it is effective for the WebSockets and HTTP communication used in your Curator-H project.
+**6.Ethernet Capabilities**
+- **Built-in MAC:** The ESP32-S3 does not have an integrated Ethernet PHY (Physical Layer) inside the chip, but it does have an integrated MAC (Media Access Control) layer.
+- **External Support:** To use Ethernet with the ESP32-S3, you must connect an external Ethernet PHY chip (such as the LAN8720A or similar) via the RMII (Reduced Media Independent Interface) protocol.
+- **Integration:** Since the ESP32-S3 supports RMII, you can achieve wired Ethernet connectivity by routing the necessary signals to the external PHY; the internal MAC will then handle the data processing. <br>
+
+***Key Connectivity Summary***
+|Feature|Support|Note|
+|--|--|--|
+|**Wi-Fi**|Integrated (2.4 GHz)|Native support up to 150 Mbps.|
+|**Bluetooth**|Integrated (v5.0 LE)|Supports long-range mode.|
+|**Ethernet**|External PHY Required|Uses internal MAC via RMII interface.|
+|**USB**|Integrated|1x Full-speed USB OTG and 1x USB Serial/JTAG.|  
+
+## IMPORTANT
+**1. NVS (Non-Volatile Storage)** <br>
+The ESP32-S3 uses the NVS library as a key-value storage system in your flash memory. 
+- ***Purpose:*** It is designed to store small amounts of data (like your JWT_SECRET_NVS_KEY or user credentials) that must persist across power cycles.
+- ***Internal Mechanics:*** It works by organizing data into pages and sectors in the flash; it includes a wear-leveling mechanism to prevent specific flash cells from dying due to frequent writes. <br>
+
+**2. RTC Clock & Power Management** <br>
+The ESP32-S3 features a sophisticated Real-Time Clock (RTC) subsystem that stays powered even when the rest of the chip is in sleep modes.
+- ***Function:*** It tracks absolute time (if synced via SNTP, as you do in final_task_0) and provides the logic for wake-up timers.
+- ***RTC Memory:*** There is a dedicated, tiny "RTC Fast/Slow Memory" block that persists during Deep Sleep, allowing you to pass variables (like state flags) to the ULP coprocessor or back to the main CPU after a wake-up. <br>
+
+**3. SD Card (SDMMC/SPI)** <br>
+The ESP32-S3 has a dedicated SDMMC Host peripheral that supports high-speed data transfer.
+- ***Connectivity:*** You can interface with SD cards using either the SDMMC protocol (which is much faster and uses more pins) or the SPI protocol (which is slower but requires fewer pins and is easier to route on a PCB).
+- ***Usage:*** In your PolyCap_finaV context, this is ideal for local logging of energy data if the Wi-Fi connection to your server drops.<br>
+
+**4. JTAG (On-Chip Debugging)** <br>
+The ESP32-S3 has a built-in USB Serial/JTAG controller, which is a massive upgrade over older ESP32 versions.
+- ***Function:*** It allows you to debug your code (step through lines, set breakpoints, inspect variables) directly over the same USB-C cable you use for flashing.
+- ***Advantage:*** You no longer need an external JTAG adapter (like a J-Link) to perform hardware-level debugging; you can use esp-prog or the built-in USB capability to diagnose complex crashes in inverter_task.c.
+
+### Summary Table
+|**Feature**|Primary Use Case|Critical Note|
+|--|--|--|
+|NVS|Config & Auth Secrets|Use sparingly to minimize flash wear.|
+|RTC|Timekeeping & Deep Sleep|RTC memory is volatile if main power is lost.|
+|SD Card|Data Logging|Use SDMMC for performance; SPI for simplicity.|
+|JTAG|Real-time Debugging|Built-in USB JTAG simplifies troubleshooting.|  
