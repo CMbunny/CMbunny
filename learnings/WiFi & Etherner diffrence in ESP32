@@ -1,0 +1,1 @@
+In the context of the ESP32-S3-WROOM-1 module, Wi-Fi and Ethernet are two completely different physical paths to the same goal: getting your data to the cloud.
