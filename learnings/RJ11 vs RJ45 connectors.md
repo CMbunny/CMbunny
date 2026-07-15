@@ -121,3 +121,29 @@ If you are designing your own board/cables for the inverters:<br>
 - Always use Pin 5 for B.<br>
 
 3. **The "Female" Trap:** Remember that when you look at a female port (jack) on your board, the pinout is the mirror image of the male plug. Use a multimeter in "Continuity Mode" to verify that Pin 1 of your male cable actually hits the correct trace on your PCB.
+
+## NOTE:
+**The Core Difference** <br>
+
+1.) **UART (Point-to-Point):** This is a "Full-Duplex" style communication. It relies on two dedicated, independent signal lines for talking (TX) and listening (RX). Therefore, you must cross them so the "Speaker" (TX) at one end points to the "Listener" (RX) at the other.
+
+ ****Analogy:*** Like two people talking on walkie-talkies; one must transmit while the other receives.* <br>
+
+2.) **RS485 (Bus/Multi-drop):** This is a "Differential" communication. It does not use separate TX and RX wires. Instead, it uses a single pair of wires (A and B) where the "data" is the voltage difference between the two wires.
+
+****Analogy:*** Like a conference call. Everyone is on the same line. If you talk, everyone hears you. You don't "cross" the line; you just connect to the shared bus.*
+
+**Question: Why RS485 "A and B" is simpler?** <br>
+Because the data is differential (the voltage difference between A and B is what matters, not the absolute voltage), you don't have to worry about flipping the "direction" of the signal. <br>
+i)If you connect A to B and B to A: You will simply invert the signal logic (a "0" becomes a "1"). Your data will look like gibberish to the devices.<br>
+ii)If you connect A to A and B to B: The logic remains correct.,br>
+
+#### A Critical Warning for RS485 ####
+While you don't "cross" the wires, you must maintain polarity consistency across the entire site.
+
+- ***Consistency is Key:*** If you decide that Pin 4 is "A" and Pin 5 is "B" on your Curator-H board, you must ensure that every single inverter in your daisy chain uses the exact same scheme. If you accidentally flip A and B on just one inverter in a chain of four, that one inverter will fail to communicate, and it can sometimes "noise up" the entire bus for the others.
+
+#### Checklist for your Curator-H Wiring:
+1.)**UART (for local console):** Cross it (TX -> RX, RX -> TX). <br>
+2.)**RS485 (for inverters):** Parallel it (A -> A, B -> B).<br>
+3.)**GND:** Always connect the GND pin between the master `(Curator-H)` and the inverters. Even though RS485 is differential, it still requires a common "reference voltage" to keep the communication stable over long cable runs.
