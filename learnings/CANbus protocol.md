@@ -73,3 +73,21 @@ In the battery manual (the DBC), you would find a table that maps those bytes to
 1.)**Endianness:** Does the battery send the "Most Significant Byte" first or last? <Br>
 2.)**Signed vs Unsigned:** Is the current positive (charging) or negative (discharging)? You need to check if the battery uses "Two's Complement" to represent negative numbers.
 3.)**The Frequency:** If you don't read the buffer fast enough, the battery will overwrite the old data with new data, and you'll miss the update.
+
+*`In that 8-byte payload (0A 0B 00 32 01 04 00 00), the 6th and 7th bytes are 00 00.`*
+### 1. Common Uses for the Final Bytes
+Since bytes 0–5 are often used for the "big" data (Voltage, Current, SoC), manufacturers usually pack "Status Flags" or "Alarms" into the last two bytes.
+- **Status Flags:** These are "Bit-fields." Instead of a number like `100`, each individual bit (0 or 1) represents a Yes/No status.<br>
+*Example: Bit 0 = Charging, Bit 1 = Discharging, Bit 2 = Over-temperature, Bit 3 = Under-voltage.*
+- **Safety/Alarm Codes:** If the battery has a fault, these bytes change from 00 00 to a specific error code (e.g., 01 02 might mean "Over-current Protection Triggered").
+- **Reserved/Padding:** Sometimes, they are just left as 00 00 because the battery doesn't have enough data to fill all 8 bytes.
+
+### 2. How to "Read" them like an Engineer
+If your manual says those bytes are **"Battery Status Flags"**, here is how you translate `00 00`:
+- **Convert to Binary:** `0000 0000 0000 0000`
+- **Check the Table:** If your manual says "Bit 0 = High Temp", and your last bit is 0, it means ***"No High Temp"***. If it was a 1, the battery would be alerting you to heat.
+
+### 3. The "Why"
+Why put them at the end?
+- **Safety:** Alarms are often grouped at the end of the message so the system can quickly "mask" or ignore the status bytes if it only cares about the main values (Voltage/Current).
+- **Logical separation:** It separates the Measured Values (Voltage/Current) from the System State (Alarms/Status).
