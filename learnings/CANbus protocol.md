@@ -114,3 +114,9 @@ Unlike protocols such as UART, TCP/IP, or SPI, the Controller Area Network (CAN)
 - **Detecting Lost Arbitration:** If a node transmits a recessive bit (1) during the ID arbitration phase but reads back a dominant bit (0) on the bus, it instantly realizes that another node with a higher-priority message is talking. That node immediately stops transmitting without throwing an error, turning itself into a passive listener so the higher-priority message goes through uninterrupted.
 - **Error Detection:** If a node transmits any normal data bit and reads back a conflicting state that it didn't expect (outside of arbitration), it detects a fault, triggers an error frame, and forces the network to re-evaluate data integrity.
 - **Global Reception (Acceptance Filtering):** Because every node listens to everything on the bus all the time, individual controllers use internal hardware acceptance filters to look at the message ID and decide whether to grab the packet into local memory or ignore it.
+
+## THINGS TO REMEMBER:
+1.)**Physical Bus Topology:** Yes, you must physically wire all your CAN devices in a shared, multi-drop linear bus topology (a daisy-chain or line configuration with short stubs) using a twisted-pair cable.<br>
+2.)**The 120-Ohm Terminators:** You must place a $120\,\Omega$ termination resistor at both absolute physical ends of that cable to prevent signal reflections and maintain proper differential voltage swings.<br>
+3.)**Passive Bus Monitoring:** Every single node connected to the bus constantly listens to every frame flowing across the physical lines.<br>
+4.)**Hardware Filtering:** Instead of the CPU getting overwhelmed by every packet, the CAN controller's hardware-level acceptance filters look at the incoming CAN IDs and automatically discard unwanted messages, only interrupting your microcontroller's software when a matching, relevant message arrives.
