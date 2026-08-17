@@ -65,16 +65,17 @@ Sometimes, the Meter doesn't wait for a request. This is called ***Push Communic
 - **Data Notification:** The Meter is configured to "push" its data at set intervals (e.g., every 15 minutes).
 - **No Association Needed:** In some setups, the Meter simply formats the data into a DLMS packet and fires it at the HMI without an Association Request. This is very common in cellular/GPRS meters where the meter is the one initiating the connection to save power.
 
-4. **Summary Table of the Communication Flow**<br>
-|**Step**|**Action**|**OSI Layer**|
-|--|--|--|
-|1|**Association (AARQ/AARE)**|Layer 7 (DLMS)|
-|2|**GET/READ Request**|Layer 7 (DLMS)|
-|3|**Data Response**|Layer 7 (DLMS)|
-|4|**Framing (HDLC Header/FCS)**|Layer 2 (HDLC)|
-|5|**Physical Transmission**|Layer 1|
+ 4. Summary Table of the Communication Flow
 
-6. **Why this sequence is used**
+| Step | Action                        | OSI Layer        |
+|------|--------------------------------|-------------------|
+| 1    | Association (AARQ/AARE)        | Layer 7 (DLMS)    |
+| 2    | GET/READ Request                | Layer 7 (DLMS)    |
+| 3    | Data Response                   | Layer 7 (DLMS)    |
+| 4    | Framing (HDLC Header/FCS)       | Layer 2 (HDLC)    |
+| 5    | Physical Transmission           | Layer 1           |
+
+## 6. **Why this sequence is used**
 - **Authentication:** AARQ ensures that only authorized systems can talk to the meter.
 - **Flow Control:** The association prevents the meter from being overwhelmed by multiple clients trying to talk at the same time.
 - **Error Resilience:** Because every request requires an explicit confirmation, the system knows exactly when a read has failed, allowing it to retry automatically.
