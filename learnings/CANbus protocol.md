@@ -70,8 +70,8 @@ In the battery manual (the DBC), you would find a table that maps those bytes to
 3.)**Endianness (The `0A 0B` mystery):** Notice that `0A 0B` (hex) is 2571 decimal. Sometimes, manufacturers swap the order of the bytes (`0B 0A`), which is called "Little-Endian" vs "Big-Endian." If your data looks like crazy, huge numbers, it’s usually because you need to swap the byte order in your code.<br>
 
 **Question:What one needs to know before coding?** <br>
-1.)**Endianness:** Does the battery send the "Most Significant Byte" first or last? <Br>
-2.)**Signed vs Unsigned:** Is the current positive (charging) or negative (discharging)? You need to check if the battery uses "Two's Complement" to represent negative numbers.
+1.)**Endianness:** Does the battery send the "Most Significant Byte" first or last? <br>
+2.)**Signed vs Unsigned:** Is the current positive (charging) or negative (discharging)? You need to check if the battery uses "Two's Complement" to represent negative numbers.<br>
 3.)**The Frequency:** If you don't read the buffer fast enough, the battery will overwrite the old data with new data, and you'll miss the update.
 
 *`In that 8-byte payload (0A 0B 00 32 01 04 00 00), the 6th and 7th bytes are 00 00.`*
@@ -91,3 +91,26 @@ If your manual says those bytes are **"Battery Status Flags"**, here is how you 
 Why put them at the end?
 - **Safety:** Alarms are often grouped at the end of the message so the system can quickly "mask" or ignore the status bytes if it only cares about the main values (Voltage/Current).
 - **Logical separation:** It separates the Measured Values (Voltage/Current) from the System State (Alarms/Status).
+
+
+## How Connection and Communication Are Established in CAN Bus?
+Unlike protocols such as UART, TCP/IP, or SPI, the Controller Area Network (CAN) protocol does not use traditional handshakes, connection requests, node-to-node sessions, or explicit addressing.
+
+- **Message-Oriented Broadcast:** Nodes do not send data to a specific device address; instead, they broadcast a message stamped with a *unique Identifier (ID)* onto the shared bus for anyone to read.
+- **No Connection Setup:** There is no opening handshake, login sequence, or master-slave polling initialization required to begin talking; any node can place a frame on the wire the moment the bus is idle.
+- **Arbitration Instead of Collisions:** If two nodes happen to transmit at the exact same time, no data is corrupted or lost. The bus resolves access via bit-wise arbitration using the message IDs: the node transmitting the lowest numerical ID (highest priority) automatically wins control, while competing nodes gracefully back off and wait.
+- **Acknowledgment Slot:** The only transactional check built into the end of a frame is an ACK slot, where any receiving node confirms that a message was read cleanly without physical transmission errors.
+
+### NOTE:
+1.)**Collision Identification & Error Frame:** If two different nodes attempt to transmit simultaneously and use the exact same numerical Identifier, the CAN protocol's normal arbitration mechanism breaks down during the identifier phase because neither node will detect a differing bit to yield to.<br>
+2.)**Data Field Conflict:** As the transmission continues into the data bytes or control fields, if the two nodes happen to send different data payloads at that exact moment, a node sending a `recessive bit (1)` will read back a `dominant bit (0)` from the other node.<br>
+3.)**Bus Error Declaration:** Because the transmitting nodes expect to read back the exact logical state they put on the wire, discovering a mismatch outside of the standard ID arbitration phase violates the protocol rules. This triggers an Error Frame injection on the bus.<br>
+4.)**Fault Confinement:** Both nodes recognize a bit-error or form-error, increment their internal error counters, and the faulty or conflicting messages are aborted and automatically scheduled for retransmission, protecting the network from silent data corruption.
+
+## What is "Listening to the Bus" in the CAN Protocol?
+"Listening to the bus" (often referred to in hardware as Bit Monitoring) is a foundational mechanism built straight into the physical layer of every active CAN node:
+- **Simultaneous Transmit and Read:** Whenever a node transmits a bit onto the CAN line, its internal transceiver circuit simultaneously reads the actual physical voltage level present on the shared bus lines.
+- **Enforcing Bus Dominance:** CAN utilizes a "wired-and" style differential logic where a Dominant bit (logical 0) physically overrides and pulls down a Recessive bit (logical 1).
+- **Detecting Lost Arbitration:** If a node transmits a recessive bit (1) during the ID arbitration phase but reads back a dominant bit (0) on the bus, it instantly realizes that another node with a higher-priority message is talking. That node immediately stops transmitting without throwing an error, turning itself into a passive listener so the higher-priority message goes through uninterrupted.
+- **Error Detection:** If a node transmits any normal data bit and reads back a conflicting state that it didn't expect (outside of arbitration), it detects a fault, triggers an error frame, and forces the network to re-evaluate data integrity.
+- **Global Reception (Acceptance Filtering):** Because every node listens to everything on the bus all the time, individual controllers use internal hardware acceptance filters to look at the message ID and decide whether to grab the packet into local memory or ignore it.
