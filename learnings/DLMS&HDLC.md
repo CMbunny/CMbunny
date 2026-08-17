@@ -93,7 +93,7 @@ Sometimes, the Meter doesn't wait for a request. This is called ***Push Communic
 - **COSEM:** Companion Specification for Energy Metering. It models all meter data as "Objects.
 - **"OBIS Codes:** The universal "Object Identification System." A 6-part ID (A.B.C.D.E.F) that tells the system exactly what parameter is being measured (e.g., Active Energy, Voltage).
 - **Association:** The mandatory "handshake" process (AARQ/AARE) that establishes a secure session between the Client and the Meter.
-3. **Communication Sequence** <br.
+3. **Communication Sequence** <br>
 The interaction is strictly Client-Server, following this logical flow: <br>
 - **AARQ (Association Request):** Client asks to connect, provides credentials, and proposes security settings (e.g., encryption).
 - **AARE (Association Response):** Meter validates the request and opens the session.
@@ -105,13 +105,48 @@ When you send a request, the data travels through the OSI layers, getting wrappe
 - **Application Layer:** DLMS creates the structured message (APDU).
 - **Data Link Layer (HDLC):** Wraps the APDU in a frame, adds the Meter Address, and appends the ***FCS (Frame Check Sequence)*** for error detection.
 - **Physical Layer:** Converts the frame into raw bits for the wire.
-5. **Comparison Summary**
-|Aspect|DLMS/COSEM|HDLC|
-|--|--|--|
-|**Layer**|Application (Layer 7)|Data Link (Layer 2)|
-|**Main Job**|Data Modeling & Identification|Framing & Error Protection|
-|**Analogy**|The "Letter" (Content)|The "Envelope" (Delivery)|
+5. **Comparison Summary**<br>
+
+| Aspect       | DLMS/COSEM                     | HDLC                          |
+|--------------|----------------------------------|--------------------------------|
+| **Layer**    | Application (Layer 7)           | Data Link (Layer 2)           |
+| **Main Job** | Data Modeling & Identification  | Framing & Error Protection    |
+| **Analogy**  | The "Letter" (Content)          | The "Envelope" (Delivery)     |
 6. **Pro-Tips for Implementation**
 - **Security:** Always use the Association phase to enable encryption. Never transmit raw OBIS data over an insecure connection if sensitive billing or control data is involved.
 - **Error Handling:** If the association drops, you must restart from the AARQ handshake. Always implement a "Retry" mechanism in your application code.
 - **Versatility:** DLMS is "Transport Agnostic"—it does not care if it's running over HDLC, TCP/IP, or Cellular. This makes it the most flexible protocol for global utility grids.
+
+## Connecting a Meter via DLMS/HDLC: Architecture & Hardware Pipeline
+When reading an energy meter using DLMS/HDLC (Device Language Message Specification over High-level Data Link Control), the meter acts as a server (responder) and your ESP32-S3 microcontroller acts as the client (initiator).<br>
+
+Because DLMS/HDLC is a higher-layer application and presentation protocol, it does not care on its own whether it travels over serial lines (like RS485/RS232) or optical ports; it relies on the physical layer to transport its byte streams.<br>
+
+Here is the complete hardware connection pipeline from your ESP32-S3 to a single DLMS/HDLC meter, broken down by component and task:<br>
+
+**1. Hardware Pipeline for a Single Meter (RS485 Setup Example)** <br>
+- **ESP32-S3 Microcontroller (The Master / Client)** <br>
+*Task:* Runs your firmware, implements the DLMS/HDLC stack (such as Gurux DLMS), handles the application logic, and issues meter reading commands via its hardware UART peripheral.
+- **UART Data & Control Lines (TTL Level)** <br>
+*Task:* Carry standard 3.3V CMOS transmit (TX), receive (RX), and optionally direction control (DE/RE) signals between the ESP32-S3 GPIOs and the transceiver.
+- **RS485 Transceiver IC (e.g., MAX485 / ISO3082)** <br>
+*Task:* Translates the 3.3V single-ended TTL signals from the microcontroller into differential voltage signals (A+ and B-) suitable for long-distance industrial wiring, and vice-versa. (If using an isolated transceiver like the ISO3082, it also protects your PCB from ground loops and voltage surges).
+- **Twisted-Pair Shielded Cable** <br>
+*Task:* Physically transmits the differential data packets between your device enclosure and the meter. Twisting the wires cancels out electromagnetic interference (EMI) from external noise sources.
+- **120-Ohm Termination Resistors** <br>
+*Task:* Placed strictly across the A+ and B- lines at both physical ends of the communication cable to absorb signal reflections and maintain data integrity.
+- **Energy Meter (DLMS/HDLC Server over RS485)** <br>
+*Task:* Receives the HDLC frames, processes the DLMS objects (OBIS codes) internally, and responds with the requested energy parameters (e.g., active energy, voltage, current).
+
+### Scaling to Multiple Meters Simultaneously (Multi-Drop RS485 Bus)
+When you connect two or more meters simultaneously, DLMS/HDLC handles multi-device routing using logical addressing (Client Address and Server Logical/Physical Address) embedded directly into the HDLC frame header, while the physical layer uses a Multi-Drop Bus Topology.<br>
+
+**What Changes in the Wiring?** <br>
+1.)**No Star or Point-to-Point Runs:** You do not run separate cables from your PCB for each meter. Instead, you use a single, shared daisy-chain (bus) configuration.<br>
+2.)**The Daisy-Chain Path:** The RS485 twisted-pair cable exits your PCB's transceiver terminals, goes into Meter 1 (terminating at its A/B port), and then continues ("chains") directly from Meter 1's terminals into Meter 2's A/B port, and so on down the line.<br>
+3.)**Termination Placement:** The $120\,\Omega$ termination resistors are placed only at the two absolute physical extremes of the entire line: one resistor right at your PCB transceiver terminals (or inside the board layout) and the second resistor inside the very last meter on the daisy chain. Intermediate meters do not have termination resistors.<br>
+
+**What Changes in the Configuration (Software & DLMS/HDLC)?** <br>
+1.)**Device Addresses (Server IDs):** In a single-meter setup, the meter often accepts any HDLC address or a default broadcast address. When multiple meters share the same physical RS485 bus, every meter must be pre-configured with a unique Device ID or Logical Address (often matching its serial number or a unique station ID set via its optical port or display menu).<br>
+2.)**Addressing in the HDLC Frame:** Your DLMS/HDLC client stack must wrap its requests with the specific target meter's HDLC Server Address in the frame header so that only the intended meter responds, preventing bus collisions.<br>
+3.)**Sequential Polling Routine:** Because RS485 is a shared half-duplex bus, your ESP32-S3 firmware must poll the meters sequentially (e.g., Request Meter 1 $\rightarrow$ Wait for DLMS response $\rightarrow$ Request Meter 2 $\rightarrow$ Wait for DLMS response). Firing queries to multiple meters at the exact same time on the same bus will corrupt the data frames.
