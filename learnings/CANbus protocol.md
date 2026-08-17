@@ -4,8 +4,8 @@ CANbus (Controller Area Network) is the "nervous system" of modern battery packs
 Originally designed for cars, CANbus is a ***message-based protocol***. Unlike Modbus, where a master asks, "What is your voltage?", CANbus devices simply "broadcast" their data to the entire network whenever they want.<br>
 
 ## 2. How it works?
-1.) **The Broadcast:** When a Battery Management System (BMS) has an update, it puts a message on the bus. This message has a **CAN ID** (*a number that identifies what the data is, like "Battery Voltage" or "Cell Temperature"*).
-2.)**The Filter:** Every other device on the network (like an Inverter or your monitoring system) listens to the bus. They look at the CAN ID. If they don't care about "Cell Temperature," they simply ignore the message.
+1.) **The Broadcast:** When a Battery Management System (BMS) has an update, it puts a message on the bus. This message has a **CAN ID** (*a number that identifies what the data is, like "Battery Voltage" or "Cell Temperature"*).<br>
+2.)**The Filter:** Every other device on the network (like an Inverter or your monitoring system) listens to the bus. They look at the CAN ID. If they don't care about "Cell Temperature," they simply ignore the message.<br>
 3.)**Arbitration:** If two devices try to talk at the exact same time, the one with the "higher priority" (the lowest CAN ID number) wins, and the other waits. This happens in microseconds.
 
 ## 3. CANbus vs. Modbus vs. DLMS
