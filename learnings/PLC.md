@@ -314,3 +314,146 @@ C) Because inputs will not be read<br>
 D) Because timers will not work<br>
 
 # Topic 6 – Timers (the next essential tool)
+Timers are used almost everywhere in elevator control.<br>
+
+**Most common timer: TON (Timer ON-Delay)** <br>
+How a TON works:<br>
+1. When the input condition (IN) becomes TRUE, the timer starts counting time.<br>
+2. It counts until it reaches the preset time (PT).<br>
+3. When the elapsed time ≥ preset time, the timer output (Q) becomes TRUE.<br>
+4. If the input condition goes FALSE before the preset is reached, the timer resets to zero.<br>
+
+**Simple picture in your mind:**
+- IN = “start counting”
+- PT = “how long to wait” (example 3 seconds)
+- Q = “time is finished → do something”
+
+**Other common timers (just names for now):**
+- TOF → Timer OFF-Delay (output stays on for a time after the input turns off)
+- TP → Pulse timer (gives a fixed pulse)
+
+For elevators we mostly use **TON** at the beginning.<br>
+
+**Real elevator examples where TON is used:**
+- Door open time (keep doors open for 5–8 seconds)
+- Door closing delay
+- Short delay before the motor starts moving after doors are closed
+- Floor arrival delay (wait a moment before opening doors)
+- Anti-nuisance delay (ignore very short button presses)
+- Travel timeout (if the elevator takes too long to reach the next floor → fault)
+
+**Very simple Ladder idea (conceptual):**
+```
+Door_Closed          TON_Door_Delay
+----| |--------------[TON  PT:=3s]----
+                      |
+                      Q
+                     | |------------( Door_Open_Command )
+```
+When the door is confirmed closed, wait 3 seconds, then allow the next action.
+
+### Quiz 6 – Timers (7 questions)
+Reply with the letters only.
+
+1. What does a TON timer do?<br>
+A) Turns the output on immediately and turns it off after a delay<br>
+**B) Starts counting when the input becomes TRUE and turns its output TRUE after the preset time** <br>
+C) Counts how many times a button is pressed<br>
+D) Always runs continuously<br>
+
+2. What happens if the input of a TON goes FALSE before the preset time is reached?<br>
+A) The timer continues counting<br>
+B) The timer output becomes TRUE<br>
+**C) The timer resets to zero** <br>
+D) The PLC stops scanning<br>
+
+3. In an elevator, which of these is a typical use of a TON timer?<br>
+A) Counting the number of floors<br>
+**B) Keeping the doors open for a fixed time** <br>
+C) Reading the call buttons<br>
+D) Turning the cabin light on permanently<br>
+
+4. What does “PT” mean on a timer?<br>
+A) Present Time<br>
+**B) Preset Time (the time we want to wait)** <br>
+C) Power Time<br>
+D) Program Time<br>
+
+5. Why do we often put a short TON delay after the doors are confirmed closed before starting the motor?<br>
+A) To make the elevator slower<br>
+**B) To give a small safety/settling time and avoid mechanical stress** <br>
+C) Because the PLC is slow<br>
+D) To count passengers<br>
+
+6. Which timer output becomes TRUE only after the preset time has elapsed?<br>
+A) The IN input<br>
+**B) The Q output of a TON** <br>
+C) The PT value<br>
+D) The Emergency Stop<br>
+
+7. If I want the elevator doors to stay open for 6 seconds after arriving at a floor, which timer is the most natural choice?<br>
+A) A counter <br>
+**B) A TON timer** <br>
+C) A seal-in contact only<br>
+D) An NC contact<br>
+
+# Topic 7 – Counters (short and clear)
+Counters are simpler than timers.<br>
+
+**Most common: CTU (Count Up)** <br>
+- Every time the input (CU) has a rising edge (goes from 0→1), the counter increases by 1.
+- When the current value (CV) reaches the preset value (PV), the output (Q) becomes TRUE.
+- There is usually a Reset input to set the count back to zero.
+
+***Elevator examples:***
+- Counting how many times a door has opened (for maintenance)
+- Simple passenger counting (rare and not accurate)
+- Counting floors passed (sometimes used in older systems)
+- Anti-nuisance: count repeated button presses in short time
+
+For our project we will use counters very little at the beginning. Timers and seal-in logic are far more important.<br>
+
+**Quick difference:**
+- Timer → measures time
+- Counter → measures number of events
+
+### Quiz 7 – Mixed Foundation + Counters (7 questions)
+This is a mixed revision quiz. Answer all 7 with letters. Correct answers are in bold.
+
+1. A TON timer output (Q) becomes TRUE when:<br>
+A) The input becomes TRUE<br>
+**B) The elapsed time reaches the preset time** <br>
+C) The PLC is powered on<br>
+D) A counter reaches its value <br>
+
+2. What happens to a TON if its input goes FALSE before the preset time?<br>
+A) It continues counting<br>
+**B) It resets to zero** <br>
+C) Its output stays TRUE<br>
+D) The PLC faults<br>
+
+3. Which contact do we normally use for a floor call button?<br>
+**A) NO** <br>
+B) NC <br>
+
+4. Which contact do we normally use for Emergency Stop in the main circuit?<br>
+A) NO<br>
+**B) NC** <br>
+
+5. What is the main job of a seal-in contact?<br>
+A) To measure time<br>
+**B) To keep an output ON after the momentary button is released**<br>
+C) To count floors<br>
+D) To reset a timer<br>
+
+6. A CTU counter increases its value when:<br>
+A) Time passes<br>
+**B) Its count input has a rising edge (0→1)** <br>
+C) The preset is reached<br>
+D) The PLC scan ends<br>
+
+7. In an elevator, which is more commonly used for “keep doors open for 6 seconds”?<br>
+A) Counter<br>
+**B) TON timer**<br>
+C) Only seal-in<br>
+D) NC contact of the door<br>
