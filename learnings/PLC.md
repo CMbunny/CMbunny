@@ -962,67 +962,236 @@ C) Timer contact<br>
 D) Counter contact<br>
 
 # Topic 13 Door Sequence – Next Concept (short preview)
-Typical door sequence for one elevator:
+Typical door sequence for one elevator:<br>
 
-Arrive at floor → issue Door Open command
-Wait until Door Open sensor is TRUE
-Start a TON (usually 5–8 seconds) – passenger transfer time
-When timer done → issue Door Close command
-Wait until Door Closed sensor is TRUE
-Only then allow travel motor to start
+1. Arrive at floor → issue **Door Open** command<br>
+2. Wait until **Door Open** sensor is TRUE<br>
+3. Start a TON (usually 5–8 seconds) – passenger transfer time<br>
+4. When timer done → issue **Door Close** command<br>
+5. Wait until **Door Closed** sensor is TRUE<br>
+6. Only then allow travel motor to start<br>
 
-Safety rule: Motor must never run unless Door Closed + Safety Chain + E-Stop are healthy.
+**Safety rule**: _Motor must never run unless Door Closed + Safety Chain + E-Stop are healthy._<br>
 
-Practice Quiz 13 – 10 Questions (Shuffled + Real-life style + Challenge)
-Note: Question 4 and Question 9 have more than one correct answer.
+### Quiz 13 – 10 Questions (Shuffled + Real-life style + Challenge)
+_Note: Question 4 and Question 9 have more than one correct answer._<br> Correct options are in bold.<br>
 
-A technician says “the output turned on in the middle of the scan”. Is this normal behaviour in a standard PLC?
-A) Yes, outputs update continuously
-B) No, outputs are written only at the end of the scan
-C) Only if the PLC is in Force mode
-D) Only on the first scan after power-up
-You need the elevator doors to stay open for 6 seconds after they are fully open. Which instruction is the most appropriate?
-A) CTU counter
-B) TON timer
-C) Simple seal-in without time
-D) NC contact of the door sensor
-Why must a floor call be latched (sealed-in)?
-A) Because the passenger usually releases the button immediately
-B) So the PLC remembers the request until the car serves that floor
-C) To reduce the number of input points
-D) Because timers cannot be used with buttons
-(Multiple correct) Which of the following are true about Emergency Stop handling in Ladder?
-A) It is normally evaluated with an NC contact
-B) It should be part of the main enable/safety chain
-C) Using a NO contact for E-Stop is acceptable if the button is wired correctly
-D) When E-Stop is pressed, all movement commands must be removed
-A TON is running. The IN signal goes FALSE 0.5 s before the preset is reached. What is the state of Q and the accumulated time?
-A) Q is TRUE, accumulated time is kept
-B) Q is FALSE, accumulated time is reset to zero
-C) Q is TRUE, accumulated time continues
-D) Q is FALSE, accumulated time is frozen
-In a real elevator, which of these must be TRUE before the travel motor is allowed to run?
-A) Door Closed sensor
-B) Safety Chain healthy
-C) At least one call registered
-D) Cabin light is ON
-A CTU counter is used to count how many times the doors have opened. When does the count value increase?
-A) Every scan while the door open sensor is TRUE
-B) On the rising edge of the door open sensor
-C) When the preset is reached
-D) When the Reset input is TRUE
-You see a seal-in circuit for a motor. The Stop button is programmed as an NO contact. What is the practical result?
-A) The motor will start correctly but cannot be stopped by the Stop button
-B) The motor will only run while the Stop button is pressed
-C) The motor will not start at all
-D) The seal-in will not work and the motor will stop as soon as Start is released
-(Multiple correct) Which statements about Call Registration are correct in industrial elevator logic?
-A) Calls are normally latched with seal-in or Set/Reset
-B) A call should be cleared as soon as the car passes the floor
-C) A call is cleared only when the car stops and serves that floor
-D) Direction filtering is often added later so that Up calls are served only while travelling Up
-A short 1.2 second delay is required after Door Closed becomes TRUE before Motor Up/Down is allowed. The best choice is:
-A) CTU counter set to 1
-B) TON timer with PT = 1.2 s
-C) A simple NO contact of Door Closed
-D) An NC contact of Door Closed
+1. A technician says “the output turned on in the middle of the scan”. Is this normal behaviour in a standard PLC?<br>
+A) Yes, outputs update continuously<br>
+**B) No, outputs are written only at the end of the scan** <br>
+C) Only if the PLC is in Force mode<br>
+D) Only on the first scan after power-up<br>
+
+2. You need the elevator doors to stay open for 6 seconds after they are fully open. Which instruction is the most appropriate?<br>
+A) CTU counter<br>
+**B) TON timer** <br>
+C) Simple seal-in without time<br>
+D) NC contact of the door sensor<br>
+
+3. Why must a floor call be latched (sealed-in)?<br>
+A) Because the passenger usually releases the button immediately<br>
+**B) So the PLC remembers the request until the car serves that floor** <br>
+C) To reduce the number of input points<br>
+D) Because timers cannot be used with buttons<br>
+
+4. (Multiple correct) Which of the following are true about Emergency Stop handling in Ladder?<br>
+**A) It is normally evaluated with an NC contact** <br>
+**B) It should be part of the main enable/safety chain** <br>
+C) Using a NO contact for E-Stop is acceptable if the button is wired correctly<br>
+**D) When E-Stop is pressed, all movement commands must be removed** <br>
+
+5. A TON is running. The IN signal goes FALSE 0.5 s before the preset is reached. What is the state of Q and the accumulated time?<br>
+A) Q is TRUE, accumulated time is kept<br>
+**B) Q is FALSE, accumulated time is reset to zero** <br>
+C) Q is TRUE, accumulated time continues<br>
+D) Q is FALSE, accumulated time is frozen<br>
+
+6. In a real elevator, which of these must be TRUE before the travel motor is allowed to run?<br>
+**A) Door Closed sensor** <br>
+**B) Safety Chain healthy** <br>
+**C) At least one call registered** <br>
+D) Cabin light is ON<br>
+
+7. A CTU counter is used to count how many times the doors have opened. When does the count value increase?<br>
+A) Every scan while the door open sensor is TRUE<br>
+**B) On the rising edge of the door open sensor** <br>
+C) When the preset is reached<br>
+D) When the Reset input is TRUE<br>
+
+8. You see a seal-in circuit for a motor. The Stop button is programmed as an NO contact. What is the practical result?<br>
+A) The motor will start correctly but cannot be stopped by the Stop button<br>
+**B) The motor will only run while the Stop button is pressed** <br>
+C) The motor will not start at all<br>
+D) The seal-in will not work and the motor will stop as soon as Start is released<br>
+
+9. (Multiple correct) Which statements about Call Registration are correct in industrial elevator logic?<br>
+**A) Calls are normally latched with seal-in or Set/Reset** <br>
+B) A call should be cleared as soon as the car passes the floor<br>
+**C) A call is cleared only when the car stops and serves that floor** <br>
+D) Direction filtering is often added later so that Up calls are served only while travelling Up<br>
+
+10. A short 1.2 second delay is required after Door Closed becomes TRUE before Motor Up/Down is allowed. The best choice is:<br>
+A) CTU counter set to 1<br>
+**B) TON timer with PT = 1.2 s** <br>
+C) A simple NO contact of Door Closed<br>
+D) An NC contact of Door Closed<br>
+
+# Topic 14 Door Sequence – Full Industrial Thinking
+Typical sequence once the car has arrived at a floor:<br>
+
+1. Issue Door_Open_Cmd<br>
+2. Wait until DoorOpen sensor = TRUE (or a timeout → fault)<br>
+3. Start TON (passenger transfer time, usually 5–8 s)<br>
+4. When TON.Q = TRUE → issue Door_Close_Cmd<br>
+5. Wait until DoorClosed sensor = TRUE<br>
+6. Only after DoorClosed is confirmed → allow travel enable<br>
+
+**Hard interlocks (never bypass):** <br>
+- E_Stop healthy
+- SafetyChain healthy
+- Overload not active
+- DoorClosed must be TRUE before any Motor_Up or Motor_Down command is given
+
+We will implement this as a small state sequence (or simple interlocking rungs) in Codesys soon.<br>
+
+### Quiz 14 – 10 Questions (Shuffled + Real conditions + Challenge)
+_Note: Questions 3 and 8 have more than one correct answer._ Correct options are in bold.
+
+1. A PLC programmer claims an output coil can turn on in the middle of the scan. What is the correct response?<br>
+A) This is normal behaviour<br>
+**B) Outputs are written only at the end of the scan** <br>
+C) It happens only in Structured Text<br>
+D) It happens only when using Force<br>
+
+2. After the doors are fully open, you need them to remain open for 7 seconds. Best instruction?<br>
+A) CTU<br>
+**B) TON** <br>
+C) Seal-in only<br>
+D) NC contact of DoorOpen<br>
+
+3. (Multiple correct) Which conditions must normally be TRUE before an elevator travel motor is allowed to run?<br>
+**A) DoorClosed sensor** <br>
+**B) SafetyChain healthy** <br>
+**C) At least one registered call** <br>
+D) Cabin light is ON <br>
+
+4. A TON is timing. Its IN signal drops FALSE 0.3 s before the preset. Result?<br>
+A) Q stays TRUE, time is kept<br>
+**B) Q becomes FALSE, accumulated time resets to zero** <br>
+C) Q stays TRUE, time continues <br>
+D) Q becomes FALSE, time is frozen <br>
+
+5. Why is a floor call latched with seal-in or Set/Reset?<br>
+A) Passengers release the button quickly<br>
+**B) The request must be remembered until the car serves that floor** <br>
+C) To save input points<br>
+D) Timers cannot read buttons<br>
+
+6. In a classic Start/Stop seal-in circuit, the Stop button is programmed as an NO contact in series. Practical result?<br>
+A) Motor starts but cannot be stopped<br>
+**B) Motor runs only while the Stop button is held** <br>
+C) Motor never starts<br>
+D) Seal-in works normally<br>
+
+7. A CTU counts door-open events. When does the count increase?<br>
+A) Every scan while DoorOpen is TRUE<br>
+**B) On the rising edge of DoorOpen** <br>
+C) When preset is reached<br>
+D) When Reset is TRUE<br>
+
+8. (Multiple correct) Which statements about Call Registration are industrially correct?<br>
+**A) Calls are latched so they survive after the button is released** <br>
+B) A call should be cleared as soon as the car passes the floor<br>
+**C) A call is cleared only when the car stops and serves the floor** <br>
+**D) Direction filtering is commonly added later** <br>
+
+9. You need a 1.5 s delay after DoorClosed becomes TRUE before Motor_Up or Motor_Down is enabled. Best choice?<br>
+A) CTU set to 1<br>
+**B) TON with PT = 1.5 s** <br>
+C) Simple NO of DoorClosed <br>
+D) NC of DoorClosed<br>
+
+10. Emergency Stop is wired to a digital input. In the main enable circuit it should be programmed as:<br>
+A) NO contact<br>
+**B) NC contact** <br>
+C) Timer contact<br>
+D) Counter contact<br>
+
+# Topic 15 Door Sequence – Locked Design (Single Elevator)
+We will implement the following sequence:<br>
+
+**States / Steps** <br>
+
+1. Arrival detected → issue `Door_Open_Cmd`<br>
+2. Wait for `DoorOpen` sensor (with timeout → fault)<br>
+3. Start `TON_DoorOpenTime` (typical 6–8 s)<br>
+4. When `TON_DoorOpenTime.Q` = TRUE → issue `Door_Close_Cmd`<br>
+5. Wait for `DoorClosed` sensor (with timeout → fault)<br>
+6. Only when `DoorClosed` = TRUE and SafetyChain healthy and E_Stop healthy → set `Travel_Enable`<br>
+
+**Hard rules (never violated)** <br>
+- Motor_Up / Motor_Down may be TRUE only if Travel_Enable is TRUE
+- Any loss of DoorClosed, SafetyChain or E_Stop while moving → immediate stop + fault
+
+### Quiz 15 – 10 Questions (Shuffled + Deeper conditions)
+_Note: Questions 2 and 7 are multiple-correct._ Correct options are in bold.<br>
+
+1. Physical outputs of a standard PLC are updated:<br>
+A) At the start of the scan<br>
+B) Continuously during rung execution<br>
+**C) At the end of the scan** <br>
+D) Only on the first scan after power-up<br>
+
+2. (Multiple correct) Before an elevator motor is allowed to run, which conditions are mandatory?<br>
+**A) DoorClosed sensor TRUE** <br>
+**B) SafetyChain healthy** <br>
+**C) At least one registered call** <br>
+D) Cabin light ON<br>
+
+3. A TON is enabled. IN goes FALSE 0.4 s before the preset time. What happens?<br>
+A) Q remains TRUE and time is retained<br>
+**B) Q becomes FALSE and accumulated time resets to zero** <br>
+C) Q remains TRUE and time continues<br>
+D) Q becomes FALSE and time is frozen<br>
+
+4. In a seal-in Start/Stop circuit the Stop button is programmed as an NO contact in the series path. Result?<br>
+A) Motor starts but cannot be stopped<br>
+**B) Motor runs only while the Stop button is held pressed** <br>
+C) Motor never starts<br>
+D) Normal operation<br>
+
+5. Why must hall and car calls be latched?<br>
+A) The push-button is momentary<br>
+**B) The request must remain until the car serves the floor** <br>
+C) To reduce the number of physical inputs<br>
+D) Because timers cannot read digital inputs<br>
+
+6. Best instruction to keep doors open for a fixed passenger transfer time after they are fully open?<br>
+A) CTU<br>
+**B) TON** <br>
+C) Simple seal-in<br>
+D) NC of DoorOpen sensor<br>
+
+7. (Multiple correct) Which statements about industrial Call Registration are correct?<br>
+**A) Calls are latched with seal-in or Set/Reset** <br>
+B) A call is cleared as soon as the car passes the floor<br>
+**C) A call is cleared only when the car stops and serves the floor** <br>
+**D) Direction filtering is normally added later** <br>
+
+8. A short delay is required after DoorClosed becomes TRUE before travel is permitted. Most appropriate instruction?<br>
+A) CTU<br>
+**B) TON** <br>
+C) NO contact of DoorClosed only<br>
+D) NC contact of DoorClosed only<br>
+
+9. Emergency Stop in the main enable circuit is programmed as:<br>
+A) NO contact<br>
+**B) NC contact** <br>
+C) Timer contact<br>
+D) Counter contact<br>
+
+10. A CTU is counting door-open cycles. The count value increases on:<br>
+A) Every scan while DoorOpen is TRUE<br>
+**B) Rising edge of DoorOpen** <br>
+C) When the preset is reached<br>
+D) When Reset is TRUE<br>
