@@ -871,82 +871,158 @@ B) Seal-in contact only<br>
 D) NC contact of the door-closed sensor alone<br>
 
 # Topic 12 Call Registration – Complete Structure (Single Elevator)
-We will treat three groups of calls:
+We will treat three groups of calls:<br>
 
-Car Calls (inside cabin) – Floors 1 to 10
-Hall Up Calls – Floors 1 to 9
-Hall Down Calls – Floors 2 to 10
+1. **Car Calls** (inside cabin) – Floors 1 to 10<br>
+2. **Hall Up Calls** – Floors 1 to 9<br>
+3. **Hall Down Calls** – Floors 2 to 10<br>
 
-Standard pattern for each call (example Car Call Floor 5):
-textCarCall_5          Floor5_Served      CallReg_Car_5
+**Standard pattern for each call (example Car Call Floor 5):** <br>
+```
+CarCall_5          Floor5_Served      CallReg_Car_5
 ----| |----------------|/|-------------( )----
                        |
 CallReg_Car_5          |
 ----| |----------------|
+```
+- Pressing the button latches `CallReg_Car_5`
+- When the elevator serves floor 5 (arrives + opens doors), `Floor5_Served` becomes TRUE for a short pulse and clears the call
 
-Pressing the button latches CallReg_Car_5
-When the elevator serves floor 5 (arrives + opens doors), Floor5_Served becomes TRUE for a short pulse and clears the call
+We repeat the same pattern for every Car Call, Hall Up and Hall Down.<br>
 
-We repeat the same pattern for every Car Call, Hall Up and Hall Down.
-Later improvements we will add:
+**Later improvements we will add:** <br>
+- Direction filtering (serve Up hall calls only while travelling Up, etc.)
+- Collective control (one car serves multiple calls in the same direction)
+- Anti-nuisance (ignore very short or repeated presses)
 
-Direction filtering (serve Up hall calls only while travelling Up, etc.)
-Collective control (one car serves multiple calls in the same direction)
-Anti-nuisance (ignore very short or repeated presses)
+_For now we keep it clean and reliable._
 
-For now we keep it clean and reliable.
+### Quiz 12 – 10 Questions (Shuffled + Challenge)
+**_Note: Question 7 has more than one correct answer. Select all that apply._** <br> Correct options are in bold.<br>
 
-Practice Quiz 12 – 10 Questions (Shuffled + Challenge)
-Note: Question 7 has more than one correct answer. Select all that apply.
+1. When are the physical outputs of a PLC normally updated?<br>
+A) At the beginning of the scan<br>
+B) Continuously while solving each rung<br>
+**C) At the end of the scan** <br>
+D) Only after a cold restart<br>
 
-When are the physical outputs of a PLC normally updated?
-A) At the beginning of the scan
-B) Continuously while solving each rung
-C) At the end of the scan
-D) Only after a cold restart
-A TON timer’s Q output becomes TRUE when:
-A) The IN input becomes TRUE
-B) The accumulated time reaches the preset while IN is still TRUE
-C) The Reset input is activated
-D) A rising edge occurs on the IN input
-Why do we use an NC contact for Emergency Stop in the main enable circuit?
-A) So the machine runs only while the button is pressed
-B) So a healthy E-Stop keeps the circuit closed and pressing it opens the circuit
-C) Because E-Stop is an output
-D) To reduce scan time
-What is the main purpose of a seal-in contact in parallel with a momentary Start button?
-A) To measure how long the button was held
-B) To keep the output ON after the button is released
-C) To reset timers automatically
-D) To convert the signal to analog
-In an elevator, which signals are typically PLC inputs?
-A) Motor Up command
-B) Hall call buttons
-C) Door closed sensor
-D) Cabin light
-If the IN condition of a TON goes FALSE before the preset time is reached, the timer will:
-A) Keep the accumulated time
-B) Continue counting
-C) Reset the accumulated time to zero
-D) Force Q TRUE
-(Multiple correct – select all that apply)
-Which of the following statements about Call Registration in an elevator are correct?
-A) A call must be latched so it is remembered after the passenger releases the button
-B) A call should be cleared as soon as the elevator passes the floor without stopping
-C) A call is normally cleared only when the elevator stops at that floor and serves it
-D) Seal-in or Set/Reset logic is commonly used for call registration
-A CTU counter increments its value on:
-A) Every scan while the input is TRUE
-B) A rising edge (0→1) of the count input
-C) When the preset is loaded
-D) When the Reset input is TRUE
-You need a short delay after the doors are confirmed closed before allowing the motor to start. The most suitable instruction is:
+2. A TON timer’s Q output becomes TRUE when:<br>
+A) The IN input becomes TRUE<br>
+**B) The accumulated time reaches the preset while IN is still TRUE** <br>
+C) The Reset input is activated<br>
+D) A rising edge occurs on the IN input<br>
+
+3. Why do we use an NC contact for Emergency Stop in the main enable circuit?<br>
+A) So the machine runs only while the button is pressed<br>
+**B) So a healthy E-Stop keeps the circuit closed and pressing it opens the circuit** <br>
+C) Because E-Stop is an output<br>
+D) To reduce scan time<br>
+
+4. What is the main purpose of a seal-in contact in parallel with a momentary Start button?<br>
+A) To measure how long the button was held<br>
+**B) To keep the output ON after the button is released** <br>
+C) To reset timers automatically<br>
+D) To convert the signal to analog<br>
+
+5. In an elevator, which signals are typically PLC inputs?<br>
+A) Motor Up command<br>
+**B) Hall call buttons** <br>
+C) Door closed sensor<br>
+D) Cabin light<br>
+
+6. If the IN condition of a TON goes FALSE before the preset time is reached, the timer will:<br>
+A) Keep the accumulated time<br>
+B) Continue counting<br>
+**C) Reset the accumulated time to zero** <br>
+D) Force Q TRUE<br>
+
+_(Multiple correct – select all that apply)_ <br>
+7. Which of the following statements about Call Registration in an elevator are correct?<br>
+**A) A call must be latched so it is remembered after the passenger releases the button** <br>
+B) A call should be cleared as soon as the elevator passes the floor without stopping<br>
+**C) A call is normally cleared only when the elevator stops at that floor and serves it** <br>
+**D) Seal-in or Set/Reset logic is commonly used for call registration** <br>
+
+8. A CTU counter increments its value on:<br>
+A) Every scan while the input is TRUE<br>
+**B) A rising edge (0→1) of the count input** <br>
+C) When the preset is loaded<br>
+D) When the Reset input is TRUE<br>
+
+9. You need a short delay after the doors are confirmed closed before allowing the motor to start. The most suitable instruction is:<br>
+A) CTU counter<br>
+B) Seal-in only<br>
+**C) TON timer** <br>
+D) NC contact of the door sensor alone<br>
+
+10. Which contact is normally used to detect that a hall call button is pressed?<br>
+A) NC contact<br>
+**B) NO contact** <br>
+C) Timer contact<br>
+D) Counter contact<br>
+
+# Topic 13 Door Sequence – Next Concept (short preview)
+Typical door sequence for one elevator:
+
+Arrive at floor → issue Door Open command
+Wait until Door Open sensor is TRUE
+Start a TON (usually 5–8 seconds) – passenger transfer time
+When timer done → issue Door Close command
+Wait until Door Closed sensor is TRUE
+Only then allow travel motor to start
+
+Safety rule: Motor must never run unless Door Closed + Safety Chain + E-Stop are healthy.
+
+Practice Quiz 13 – 10 Questions (Shuffled + Real-life style + Challenge)
+Note: Question 4 and Question 9 have more than one correct answer.
+
+A technician says “the output turned on in the middle of the scan”. Is this normal behaviour in a standard PLC?
+A) Yes, outputs update continuously
+B) No, outputs are written only at the end of the scan
+C) Only if the PLC is in Force mode
+D) Only on the first scan after power-up
+You need the elevator doors to stay open for 6 seconds after they are fully open. Which instruction is the most appropriate?
 A) CTU counter
-B) Seal-in only
-C) TON timer
-D) NC contact of the door sensor alone
-Which contact is normally used to detect that a hall call button is pressed?
-A) NC contact
-B) NO contact
-C) Timer contact
-D) Counter contact
+B) TON timer
+C) Simple seal-in without time
+D) NC contact of the door sensor
+Why must a floor call be latched (sealed-in)?
+A) Because the passenger usually releases the button immediately
+B) So the PLC remembers the request until the car serves that floor
+C) To reduce the number of input points
+D) Because timers cannot be used with buttons
+(Multiple correct) Which of the following are true about Emergency Stop handling in Ladder?
+A) It is normally evaluated with an NC contact
+B) It should be part of the main enable/safety chain
+C) Using a NO contact for E-Stop is acceptable if the button is wired correctly
+D) When E-Stop is pressed, all movement commands must be removed
+A TON is running. The IN signal goes FALSE 0.5 s before the preset is reached. What is the state of Q and the accumulated time?
+A) Q is TRUE, accumulated time is kept
+B) Q is FALSE, accumulated time is reset to zero
+C) Q is TRUE, accumulated time continues
+D) Q is FALSE, accumulated time is frozen
+In a real elevator, which of these must be TRUE before the travel motor is allowed to run?
+A) Door Closed sensor
+B) Safety Chain healthy
+C) At least one call registered
+D) Cabin light is ON
+A CTU counter is used to count how many times the doors have opened. When does the count value increase?
+A) Every scan while the door open sensor is TRUE
+B) On the rising edge of the door open sensor
+C) When the preset is reached
+D) When the Reset input is TRUE
+You see a seal-in circuit for a motor. The Stop button is programmed as an NO contact. What is the practical result?
+A) The motor will start correctly but cannot be stopped by the Stop button
+B) The motor will only run while the Stop button is pressed
+C) The motor will not start at all
+D) The seal-in will not work and the motor will stop as soon as Start is released
+(Multiple correct) Which statements about Call Registration are correct in industrial elevator logic?
+A) Calls are normally latched with seal-in or Set/Reset
+B) A call should be cleared as soon as the car passes the floor
+C) A call is cleared only when the car stops and serves that floor
+D) Direction filtering is often added later so that Up calls are served only while travelling Up
+A short 1.2 second delay is required after Door Closed becomes TRUE before Motor Up/Down is allowed. The best choice is:
+A) CTU counter set to 1
+B) TON timer with PT = 1.2 s
+C) A simple NO contact of Door Closed
+D) An NC contact of Door Closed
