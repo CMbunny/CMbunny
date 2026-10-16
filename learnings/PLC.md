@@ -457,3 +457,302 @@ A) Counter<br>
 **B) TON timer**<br>
 C) Only seal-in<br>
 D) NC contact of the door<br>
+
+# Topic 8 Starting the Elevator Project (Single Car first)
+We will not jump into 2 elevators yet.<br>
+
+Real industrial practice is:<br>
+**First make one elevator work correctly → then expand to multi-car group control.**<br>
+
+### High-level view of one elevator (10 floors)
+**Main jobs the PLC must do:** <br>
+
+<ol> <li>Accept hall calls (up/down buttons on each floor) and car calls (buttons inside the cabin)</li>
+<li>Remember the calls (seal-in / memory)</li>
+<li>Decide direction and next target floor</li>
+<li>Control the door sequence (open → wait → close)</li>
+<li>Control the motor (up / down / stop)</li>
+<li>Monitor safety conditions continuously (door closed, E-Stop, overload, limits, etc.)</li>
+<li>Handle faults and recovery</li> </ol>
+
+**Typical high-level sequence for one trip:** <br>
+_IDLE → New call registered → Decide direction → Close doors → Travel → Arrive at floor → Open doors → Wait → Close doors → Go to next call or return to IDLE_<br>
+
+### Quiz 8 – 10 Questions (Interview-style + All topics)
+Answer with letters only (1A 2B 3C … 10D).Correct options are in bold. <br>
+
+1. In a PLC scan cycle, when are the physical output terminals actually updated? <br>
+A) At the beginning of the scan<br>
+B) Continuously while the logic is executing<br>
+**C) At the end of the scan after the program has run** <br>
+D) Only when a force is applied<br>
+
+2. A field device is wired to a digital input. The PLC program needs to react when this device is activated. Which type of contact is normally used in Ladder? <br>
+A) NC contact<br>
+**B) NO contact** <br>
+C) Timer contact<br>
+D) Counter contact<br>
+
+3. Why is an Emergency Stop almost always programmed with an NC contact in the main enable circuit?<br>
+A) So the machine runs only when E-Stop is pressed<br>
+**B) So the circuit is closed when E-Stop is healthy and opens when E-Stop is activated** <br>
+C) Because E-Stop is an output<br>
+D) To increase scan time<br>
+
+4. Explain the purpose of a seal-in (holding) contact parallel to a momentary Start button.<br>
+A) It measures the time the button is pressed<br>
+**B) It keeps the output energised after the Start button is released** <br>
+C) It resets the timer<br>
+D) It counts the number of starts<br>
+
+5. A TON timer is used to keep elevator doors open for 7 seconds after arrival. When does the timer’s Q output become TRUE?<br>
+A) Immediately when the door open command is given<br>
+**B) After the preset time has elapsed while the input condition remains TRUE** <br>
+C) When the door closed sensor activates<br>
+D) When a counter reaches 7<br>
+
+6. What happens to a TON timer if its enabling input goes FALSE before the preset time is reached?<br>
+A) The timer continues from where it left off<br>
+B) The accumulated time is retained and Q stays TRUE<br>
+**C) The timer resets and the accumulated time returns to zero** <br>
+D) The PLC generates a fault<br>
+
+7. In industrial PLC programming, what is the main difference between a Timer and a Counter?<br>
+**A) Timer measures time, Counter measures number of events** <br>
+B) Timer is only for outputs, Counter is only for inputs<br>
+C) They are exactly the same<br>
+D) Counter is faster than Timer<br>
+
+8. A CTU counter increments its value on:<br>
+A) Every PLC scan<br>
+**B) A rising edge (0 → 1) of its count input** <br>
+C) When the preset value is reached<br>
+D) When the Reset input is TRUE<br>
+
+9. Which of the following is the most correct statement about PLC inputs and outputs in an elevator system?<br>
+A) Call buttons and door sensors are outputs; motor commands are inputs<br>
+**B) Call buttons and door sensors are inputs; motor and door commands are outputs** <br>
+C) Everything is an input<br>
+D) Everything is an output<br>
+
+10. You need a short delay (1.5 s) after the doors are confirmed closed before allowing the elevator motor to start. Which instruction is the most appropriate?<br>
+A) CTU counter<br>
+B) Seal-in contact only<br>
+**C) TON timer** <br>
+D) NC contact of the door sensor<br>
+
+# Topic 9 Preliminary I/O Thinking for One 10-Floor Elevator
+**Digital Inputs (examples):** <br>
+
+- Hall Call Up buttons (Floor 1 to 9)
+- Hall Call Down buttons (Floor 2 to 10)
+- Car Call buttons (Floor 1 to 10) inside the cabin
+- Door Closed sensor
+- Door Open sensor (or Fully Open)
+- Floor level sensors / position signals (or encoder later)
+- Overload sensor
+- Emergency Stop
+- Safety chain / landing door locks (simplified for learning)
+- Inspection / Manual mode selector (optional at start)
+
+**Digital Outputs (examples):** <br>
+
+- Motor Up command
+- Motor Down command
+- Door Open command
+- Door Close command
+- Cabin light
+- Floor indicators / direction arrows
+- Call registered lights (optional)
+- Brake release (if separate)
+
+**Important notes for learning version:** <br>
+
+- We will start with simplified position feedback (one sensor or flag per floor).
+- Real elevators use absolute encoders or multi-sensor systems + safety PLC. We stay in standard control logic for learning.
+- Safety signals (E-Stop, door locks, overload) will be treated as hard interlocks — the car must never move if they are not healthy.
+
+We will build the logic in this order:<br>
+
+1. Call registration (hall + car calls) using seal-in<br>
+2. Door sequence (Open → Wait → Close) with timers<br>
+3. Simple direction & travel logic<br>
+4. Arrival and floor serving<br>
+5. Basic interlocks and faults<br>
+6. Later expand to 2 elevators<br>
+
+### Quiz 9 – 10 Questions (Interview style + All topics)
+Correct options are market in bold.<br>
+
+1. In a standard PLC scan cycle, the physical outputs are written:<br>
+A) Before reading the inputs<br>
+B) During the execution of each rung<br>
+**C) At the end of the scan** <br>
+D) Only on the first scan after power-up<br>
+
+2. A push-button is connected to a digital input. When the button is pressed you want the logic to become TRUE. Which contact should you use?<br>
+A) NC contact<br>
+**B) NO contact** <br>
+C) Coil<br>
+D) Timer Q contact<br>
+
+3. Why is Emergency Stop normally evaluated with an NC contact in the main safety/enable circuit?<br>
+A) To allow the machine to run only while the button is pressed<br>
+**B) So that a healthy (not activated) E-Stop keeps the circuit closed, and activation opens the circuit** <br>
+C) Because E-Stop is configured as an output<br>
+D) To reduce the number of inputs required<br>
+
+4. What is the industrial purpose of placing a seal-in contact in parallel with a momentary Start button?<br>
+A) To measure how long the button was pressed<br>
+**B) To maintain the output after the operator releases the button** <br>
+C) To automatically reset all timers<br>
+D) To convert the input into an analog signal<br>
+
+5. A TON timer is enabled. After the preset time elapses, which part of the timer becomes TRUE?<br>
+A) The PT value<br>
+B) The IN input<br>
+**C) The Q output** <br>
+D) The Reset input<br>
+
+6. If the enabling condition of a TON goes FALSE before the preset time is reached, the timer will:<br>
+A) Hold its accumulated value<br>
+B) Continue counting in the background<br>
+**C) Reset the accumulated time to zero** <br>
+D) Force the Q output TRUE<br>
+
+7. In PLC terms, what is the fundamental difference between a Timer and a Counter?<br>
+**A) Timers measure elapsed time; Counters measure the number of events** <br>
+B) Timers can only be used with outputs; Counters only with inputs<br>
+C) They function identically<br>
+D) Counters are only available in Structured Text<br>
+
+8. A CTU (Count Up) counter increments its current value on:<br>
+A) Every PLC scan while the input is TRUE<br>
+**B) A rising edge (0 to 1 transition) of the count input** <br>
+C) When the preset value is loaded<br>
+D) When the Reset input is TRUE<br>
+
+9. In an elevator control system, which of the following are typically inputs to the PLC?<br>
+A) Motor Up command and Door Open command<br>
+**B) Hall call buttons, door closed sensor, overload sensor** <br>
+C) Cabin light and direction arrows<br>
+D) Brake release and floor indicators<br>
+
+10. You need a 1.5 second delay after the door closed sensor becomes TRUE before allowing the travel motor to start. The most appropriate instruction is:<br>
+A) CTU counter<br>
+B) Simple seal-in without time<br>
+**C) TON timer** <br>
+D) NC contact of the door sensor only<br>
+
+# Topic 10 Single Elevator – First Professional Step: I/O List
+In real industrial projects we always start with a clear I/O list before writing any logic.<br>
+
+**_Here is a practical learning-version I/O list for one 10-floor elevator._** <br>
+
+**Digital Inputs (PLC reads these)**
+|Tag / Name|Description|Type|Notes|
+|---|---|---|---|
+|HallCall_Up_1 to _9|Hall Up buttons on floors 1–9|NO|Passenger wants to go up|
+|HallCall_Down_2 to _10|Hall Down buttons on floors 2–10|NO|Passenger wants to go down|
+|CarCall_1 to _10|Buttons inside the cabin|NO|Destination from inside|
+|DoorClosed|Door fully closed sensor|NO/NC|Critical interlock|
+|DoorOpen|Door fully open sensor|NO|Optional but useful|
+|FloorSensor_1 to _10|Simplified floor position sensors|NO|Learning version|
+|Overload|Cabin overload switch|NC|Safety – stop when overloaded|
+|E_Stop|Emergency Stop|NC|Hard safety interlock|
+|SafetyChain|Landing door locks + other safeties|NC|Must be healthy to move|
+
+**Digital Outputs (PLC controls these)**
+|Tag / Name|Description
+|--|--|
+|Motor_Up|Command to drive motor upward|
+|Motor_Down|Command to drive motor downward|
+|Door_Open_Cmd|Command to open doors|
+|Door_Close_Cmd|Command to close doors|
+|Cabin_Light|Cabin illumination|
+|Dir_Arrow_Up|Direction indicator|
+|Dir_Arrow_Down|Direction indicator|
+|Floor_Indicator|Current floor display (simplified)|
+
+**Internal Memory we will need soon** <br>
+- Call registered flags (one for each hall up, hall down, car call)
+- Current floor
+- Target floor
+- Direction (Up / Down / Idle)
+- Door sequence states
+- Travel enable
+- Various timers (door open time, start delay, etc.)
+
+**Important learning note:** <br>
+_This is a simplified version suitable for learning. Real elevators use absolute encoders, safety PLCs, redundant sensors, and certified safety functions. We stay in standard control logic._<br>
+
+**Next Logic Block: Call Registration** <br>
+This is the first real piece of elevator logic we will design.<br>
+**Goal:** When a passenger presses a Hall Call or Car Call button, the call must be remembered (latched) until the elevator serves that floor. After serving, the call is cleared.<br>
+
+We will use classic seal-in (or Set/Reset) for this.<br>
+
+### Quiz 10 – 10 Questions (Interview style + All topics so far)
+Correct options are in bold.<br>
+
+1. In a PLC scan cycle, physical outputs are updated:<br>
+A) At the start of the scan<br>
+B) Continuously during logic execution<br>
+**C) At the end of the scan** <br>
+D) Only after a power cycle<br>
+
+2. A momentary push-button is connected to a digital input. To detect that the button is pressed, which contact is normally used in Ladder?<br>
+A) NC contact<br>
+**B) NO contact** <br>
+C) Timer contact<br>
+D) Counter contact<br>
+
+3. Why is an Emergency Stop evaluated with an NC contact in the main enable circuit?<br>
+A) So the machine runs only while the button is held<br>
+**B) So a healthy E-Stop keeps the circuit closed and activation opens it** <br>
+C) Because E-Stop is an output<br>
+D) To save input points<br>
+
+4. What is the purpose of a seal-in contact placed in parallel with a momentary Start button?<br>
+A) To measure press duration<br>
+**B) To keep the output energised after the button is released** <br>
+C) To reset all timers automatically<br>
+D) To convert the signal to analog<br>
+
+5. When does the Q output of a TON timer become TRUE?<br>
+A) As soon as the IN input becomes TRUE<br>
+**B) After the preset time has elapsed while IN remains TRUE** <br>
+C) When the Reset input is activated<br>
+D) On every rising edge of the input<br>
+
+6. If the IN condition of a TON goes FALSE before the preset time is reached, the timer will:<br>
+A) Retain the accumulated time<br>
+B) Continue counting<br>
+**C) Reset the accumulated time to zero** <br>
+D) Force Q TRUE<br>
+
+7. What is the fundamental difference between a Timer and a Counter in PLC programming?<br>
+**A) Timer measures time; Counter measures number of events** <br>
+B) Timer works only with outputs; Counter only with inputs<br>
+C) They are functionally identical<br>
+D) Counters are only available in Structured Text<br>
+
+8. A CTU counter increments its current value on:<br>
+A) Every scan while the input is TRUE<br>
+**B) A rising edge (0→1) of the count input** <br>
+C) When the preset is loaded<br>
+D) When the Reset input is TRUE<br>
+
+9. In an elevator system, which of the following are typically PLC inputs?<br>
+A) Motor Up and Door Open commands<br>
+**B) Hall call buttons, door closed sensor, overload switch** <br>
+C) Cabin light and direction arrows<br>
+D) Brake release and floor indicators<br>
+
+10. You need a short time delay after the door closed sensor is TRUE before allowing the motor to start. The most appropriate instruction is:<br>
+A) CTU counter<br>
+B) Seal-in only<br>
+**C) TON timer** <br>
+D) NC contact of the door sensor alone
+
+# Topic 11
